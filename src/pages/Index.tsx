@@ -1,13 +1,41 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import { ApiKeyProvider } from "@/contexts/ApiKeyContext";
+import { useApiKey } from "@/contexts/ApiKeyContext";
+import ApiKeyForm from "@/components/ApiKeyForm";
+import Header from "@/components/Header";
+import Dashboard from "@/components/Dashboard";
+
+const MainApp = () => {
+  const { isKeyValid } = useApiKey();
+
+  return (
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      <Header />
+      <main className="flex-1 container py-6">
+        {isKeyValid ? (
+          <Dashboard />
+        ) : (
+          <div className="flex items-center justify-center flex-col h-full min-h-[80vh]">
+            <h2 className="text-2xl font-bold mb-8 text-center text-primary">
+              Welcome to Clear Air Watch
+            </h2>
+            <p className="text-muted-foreground mb-8 max-w-md text-center">
+              To get started, please enter your OpenWeatherMap API key below.
+              This will allow us to fetch air quality data for any location on the map.
+            </p>
+            <ApiKeyForm />
+          </div>
+        )}
+      </main>
+    </div>
+  );
+};
 
 const Index = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
-      </div>
-    </div>
+    <ApiKeyProvider>
+      <MainApp />
+    </ApiKeyProvider>
   );
 };
 
