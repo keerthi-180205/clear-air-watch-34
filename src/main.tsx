@@ -1,19 +1,21 @@
 
 import React from 'react';
-import ReactDOM from 'react-dom/client';
+import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 
-const rootElement = document.getElementById('root');
+// Wait for the DOM to be fully loaded before initializing React
+document.addEventListener('DOMContentLoaded', () => {
+  const rootElement = document.getElementById('root');
 
-if (!rootElement) {
-  throw new Error('Root element not found');
-}
+  if (!rootElement) {
+    console.error('Root element not found');
+    throw new Error('Root element not found');
+  }
 
-const root = ReactDOM.createRoot(rootElement);
-
-root.render(
-  <React.StrictMode>
+  const root = createRoot(rootElement);
+  
+  root.render(
     <App />
-  </React.StrictMode>
-);
+  );
+});
