@@ -15,6 +15,7 @@ import { useApiKey } from "@/contexts/ApiKeyContext";
 import { getCurrentAirQuality, getForecastAirQuality, getHistoricalAirQuality } from "@/services/airQualityService";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import Chatbot from "./Chatbot";
 
 const Dashboard = () => {
   const { apiKey } = useApiKey();
@@ -22,37 +23,49 @@ const Dashboard = () => {
   const [selectedCity, setSelectedCity] = useState<City | null>(null);
   const [selectedLocationName, setSelectedLocationName] = useState<string | undefined>(undefined);
   const [mapCenter, setMapCenter] = useState<[number, number]>([40.7128, -74.0060]); // Default to New York
+  const [mapLocation, setMapLocation] = useState<{lat: number, lon: number} | null>(null);
+  const [isChatbotOpen, setIsChatbotOpen] = useState<boolean>(false);
   
   // Get historical data for the last 24 hours
   const now = Math.floor(Date.now() / 1000);
   const oneDayAgo = now - 24 * 60 * 60;
   
+  // Historical data query
   const { data: historicalData, isLoading: isLoadingHistorical } = useQuery({
-    queryKey: ['historical', selectedCity?.coord.lat, selectedCity?.coord.lon, apiKey],
+    queryKey: ['historical', mapLocation?.lat || selectedCity?.coord.lat, mapLocation?.lon || selectedCity?.coord.lon, apiKey],
     queryFn: () => {
-      if (!selectedCity || !apiKey) return null;
+      // Use either map location or selected city coordinates
+      const lat = mapLocation?.lat || (selectedCity?.coord.lat);
+      const lon = mapLocation?.lon || (selectedCity?.coord.lon);
+      
+      if ((!lat || !lon) || !apiKey) return null;
       return getHistoricalAirQuality(
-        selectedCity.coord.lat, 
-        selectedCity.coord.lon, 
+        lat, 
+        lon, 
         oneDayAgo, 
         now, 
         apiKey
       );
     },
-    enabled: !!selectedCity && !!apiKey,
+    enabled: !!(((mapLocation || selectedCity) && apiKey)),
   });
   
+  // Forecast data query
   const { data: forecastData, isLoading: isLoadingForecast } = useQuery({
-    queryKey: ['forecast', selectedCity?.coord.lat, selectedCity?.coord.lon, apiKey],
+    queryKey: ['forecast', mapLocation?.lat || selectedCity?.coord.lat, mapLocation?.lon || selectedCity?.coord.lon, apiKey],
     queryFn: () => {
-      if (!selectedCity || !apiKey) return null;
+      // Use either map location or selected city coordinates
+      const lat = mapLocation?.lat || (selectedCity?.coord.lat);
+      const lon = mapLocation?.lon || (selectedCity?.coord.lon);
+      
+      if ((!lat || !lon) || !apiKey) return null;
       return getForecastAirQuality(
-        selectedCity.coord.lat, 
-        selectedCity.coord.lon, 
+        lat, 
+        lon, 
         apiKey
       );
     },
-    enabled: !!selectedCity && !!apiKey,
+    enabled: !!(((mapLocation || selectedCity) && apiKey)),
   });
 
   // Get current air quality data when a city is selected
@@ -76,6 +89,9 @@ const Dashboard = () => {
           
           setSelectedAirQuality(data.list[0]);
           setSelectedLocationName(selectedCity.name);
+          
+          // Reset map location when selecting a city
+          setMapLocation(null);
         }
       } catch (error) {
         console.error("Error fetching city air quality:", error);
@@ -90,6 +106,7 @@ const Dashboard = () => {
     setSelectedCity(city);
     setMapCenter([city.coord.lat, city.coord.lon]);
     setSelectedLocationName(city.name);
+    setMapLocation(null); // Clear map location when a city is selected
     console.log("Selected city:", city.name, "at coordinates:", city.coord.lat, city.coord.lon);
   };
 
@@ -97,9 +114,14 @@ const Dashboard = () => {
     setSelectedAirQuality(airQuality);
     setSelectedLocationName(locationName);
     
-    // Clear selected city when clicking on map at a different location
+    // Set map location for queries
     if (airQuality && airQuality.coord) {
-      // Only clear if the coordinates don't match the selected city
+      setMapLocation({
+        lat: airQuality.coord.lat,
+        lon: airQuality.coord.lon
+      });
+      
+      // Clear selected city when clicking on map at a different location
       if (selectedCity && 
           (Math.abs(airQuality.coord.lat - selectedCity.coord.lat) > 0.01 ||
            Math.abs(airQuality.coord.lon - selectedCity.coord.lon) > 0.01)) {
@@ -107,6 +129,12 @@ const Dashboard = () => {
       }
     }
   };
+
+  const toggleChatbot = () => {
+    setIsChatbotOpen(!isChatbotOpen);
+  };
+
+  const shouldShowChartSection = mapLocation || selectedCity;
 
   return (
     <div className="space-y-6">
@@ -173,7 +201,7 @@ const Dashboard = () => {
         </div>
       </div>
       
-      {selectedCity && (
+      {shouldShowChartSection && (
         <div className="grid md:grid-cols-2 gap-6">
           <div>
             <h2 className="text-2xl font-bold mb-4">Historical Data (24h)</h2>
@@ -184,7 +212,7 @@ const Dashboard = () => {
             ) : historicalData?.list && historicalData.list.length > 0 ? (
               <AirQualityChart 
                 data={historicalData.list} 
-                title={`Historical Air Quality for ${selectedCity.name}`} 
+                title={`Historical Air Quality for ${selectedLocationName || "Selected Location"}`} 
               />
             ) : (
               <div className="flex items-center justify-center h-[300px] border rounded-lg">
@@ -201,7 +229,7 @@ const Dashboard = () => {
             ) : forecastData?.list && forecastData.list.length > 0 ? (
               <AirQualityChart 
                 data={forecastData.list.slice(0, 24)} 
-                title={`Air Quality Forecast for ${selectedCity.name}`} 
+                title={`Air Quality Forecast for ${selectedLocationName || "Selected Location"}`} 
               />
             ) : (
               <div className="flex items-center justify-center h-[300px] border rounded-lg">
@@ -211,6 +239,22 @@ const Dashboard = () => {
           </div>
         </div>
       )}
+
+      {/* Chatbot toggle button */}
+      <button 
+        onClick={toggleChatbot} 
+        className="fixed right-6 bottom-6 bg-primary text-white p-3 rounded-full shadow-lg hover:bg-primary/80 transition-colors z-50"
+        aria-label="Open chat"
+      >
+        {isChatbotOpen ? (
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        ) : (
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"/></svg>
+        )}
+      </button>
+      
+      {/* Chatbot component */}
+      {isChatbotOpen && <Chatbot onClose={() => setIsChatbotOpen(false)} />}
     </div>
   );
 };

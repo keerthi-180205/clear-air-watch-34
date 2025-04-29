@@ -55,6 +55,7 @@ const MapClickHandler = ({ onAirQualityUpdate }: { onAirQualityUpdate?: Props['o
 
     const handleMapClick = async (e: L.LeafletMouseEvent) => {
       const { lat, lng } = e.latlng;
+      console.log("Map clicked at:", lat, lng);
       
       try {
         if (!apiKey) {
@@ -64,11 +65,15 @@ const MapClickHandler = ({ onAirQualityUpdate }: { onAirQualityUpdate?: Props['o
         
         // Get location name
         const locationName = await fetchLocationName(lat, lng);
+        console.log("Location name:", locationName);
         
         const data = await getCurrentAirQuality(lat, lng, apiKey);
+        console.log("Air quality data received:", data);
+        
         if (data && data.list && data.list.length > 0) {
           // Add coordinates to the air quality item from the parent data
           data.list[0].coord = { lat, lon: lng };
+          console.log("Setting air quality data with coords:", data.list[0]);
           onAirQualityUpdate && onAirQualityUpdate(data.list[0], locationName);
         }
       } catch (error) {
@@ -124,6 +129,7 @@ const AirQualityMap = ({ onAirQualityUpdate, center = [20, 0] }: Props) => {
         
         <MapClickHandler onAirQualityUpdate={(data, locationName) => {
           if (data && locationName) {
+            console.log("Setting selected location:", data, locationName);
             setSelectedLocation({ 
               lat: data.coord.lat, 
               lng: data.coord.lon, 
