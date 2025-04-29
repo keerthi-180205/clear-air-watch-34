@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -31,7 +30,7 @@ interface ChatbotProps {
   };
 }
 
-// FAQ data for the chatbot - expanded with more project-specific information
+// Expanded FAQ data for the chatbot - with more questions about specific cities and pollutant levels
 const faqData = [
   {
     question: "What is AQI?",
@@ -116,10 +115,62 @@ const faqData = [
   {
     question: "What is ammonia (NH₃)?",
     answer: "Ammonia (NH₃) is a colorless gas with a pungent odor. In air pollution contexts, it primarily comes from agricultural activities, especially livestock farming and fertilizer application. Ammonia contributes to the formation of secondary particulate matter and can irritate the respiratory system at high concentrations. It also contributes to environmental issues like eutrophication when deposited into water bodies."
+  },
+  {
+    question: "What are the most polluted cities in the world?",
+    answer: "According to recent data, some of the most polluted cities in the world include Delhi (India), Lahore (Pakistan), Dhaka (Bangladesh), Kolkata (India), and Beijing (China). These cities often experience high levels of PM2.5, PM10, and other pollutants due to factors like industrial emissions, vehicle exhaust, construction dust, and in some cases, geographical factors that trap pollution."
+  },
+  {
+    question: "What are the cities with the cleanest air?",
+    answer: "Cities with the cleanest air tend to be in countries with strict environmental regulations and favorable geographical conditions. Some examples include Reykjavik (Iceland), Wellington (New Zealand), Zurich (Switzerland), Helsinki (Finland), and Honolulu (USA). These cities typically have AQI values in the 'Good' range with low PM2.5 and other pollutants."
+  },
+  {
+    question: "What causes high PM2.5 levels?",
+    answer: "High PM2.5 levels are primarily caused by combustion sources: vehicle exhaust (particularly diesel), power plants, industrial processes, biomass burning (including wildfires and agricultural burning), residential wood burning, and cooking with solid fuels. Secondary formation can also occur when gases like sulfur dioxide and nitrogen oxides react in the atmosphere. In urban areas, traffic and industrial emissions are often the main sources."
+  },
+  {
+    question: "What is the safe level for PM2.5?",
+    answer: "According to the World Health Organization's 2021 updated guidelines, the recommended annual mean for PM2.5 is 5 μg/m³ or lower, and the 24-hour mean is 15 μg/m³ or lower. These levels were significantly reduced from previous guidelines as research has shown harmful health effects even at lower concentrations. The EPA's standard in the US is currently 12 μg/m³ for the annual mean."
+  },
+  {
+    question: "How does air pollution affect children?",
+    answer: "Children are especially vulnerable to air pollution because their lungs are still developing, they breathe more air per pound of body weight than adults, and they often spend more time outdoors. Exposure to air pollution can lead to reduced lung function, asthma development or worsening, respiratory infections, and even neurodevelopmental effects. Long-term exposure during childhood has been linked to reduced lung capacity in adulthood."
+  },
+  {
+    question: "What time of day is air pollution usually worst?",
+    answer: "Air pollution often follows daily patterns: in many urban areas, there are two peaks - one in the morning (7-9 AM) during rush hour traffic, and another in the evening (5-7 PM) due to evening commutes combined with cooling temperatures that can trap pollutants closer to the ground. Air quality is typically best in the afternoon when sunlight and warmer temperatures help disperse pollutants, though this can vary based on location and weather conditions."
+  },
+  {
+    question: "How does weather affect air quality?",
+    answer: "Weather significantly impacts air quality. Wind can disperse pollutants or bring in pollution from other areas. Rain and snow can wash particulates from the air, improving air quality temporarily. Temperature inversions (when warm air traps cooler air near the ground) can trap pollution close to the surface. Hot, sunny days can increase ozone formation. Humidity can interact with pollutants to form secondary particles. Generally, air quality is worst during calm, dry weather with temperature inversions."
+  },
+  {
+    question: "What's the difference between PM2.5 and PM10?",
+    answer: "PM2.5 refers to particulate matter with a diameter of 2.5 micrometers or smaller, while PM10 refers to particles with a diameter of 10 micrometers or smaller (which includes PM2.5). The key difference is that PM2.5 particles are much smaller and can penetrate deeper into the lungs and even enter the bloodstream, making them generally more harmful to human health. PM2.5 typically comes from combustion sources, while PM10 includes additional sources like dust, pollen, and mold spores."
+  },
+  {
+    question: "How can I protect myself on high pollution days?",
+    answer: "On high pollution days: 1) Check air quality forecasts and limit outdoor activities when pollution is high, 2) If you must go outside, choose times of day with better air quality, 3) Use properly fitted N95 or KN95 masks which can filter some particulates, 4) Create a clean air space indoors using HEPA air purifiers, 5) Keep windows and doors closed, 6) Avoid adding to indoor pollution (smoking, burning candles, frying foods), 7) Stay well-hydrated, and 8) Consider using air conditioning in recirculation mode if available."
+  },
+  {
+    question: "Which countries have the worst air pollution?",
+    answer: "According to recent global air quality data, countries with the most severe air pollution problems include Bangladesh, Pakistan, India, Mongolia, Afghanistan, and several nations in Africa including Chad and Niger. These countries often face a combination of challenges including rapid industrialization without sufficient environmental regulations, high population density, widespread use of solid fuels for cooking and heating, vehicle emissions, and in some cases, geographical factors that trap pollution."
+  },
+  {
+    question: "How does ozone at ground level differ from ozone in the atmosphere?",
+    answer: "Ozone (O₃) serves different roles depending on its location. In the stratosphere (10-50 km above Earth), the 'ozone layer' protects us by absorbing harmful UV radiation. However, at ground level (tropospheric ozone), it's a harmful pollutant created when nitrogen oxides and volatile organic compounds react in sunlight. Ground-level ozone irritates the respiratory system, damages lung tissue, reduces lung function, and worsens conditions like asthma. Unlike beneficial stratospheric ozone, ground-level ozone is a key component of smog and a serious public health concern."
+  },
+  {
+    question: "What is considered a dangerous AQI level?",
+    answer: "In the 1-5 scale used by ClearCity, AQI 4 (Unhealthy) and 5 (Very Unhealthy/Hazardous) are considered dangerous. When converted to the more common 0-500 scale: Values above 150 (Unhealthy) begin to affect everyone, not just sensitive groups. Levels above 200 (Very Unhealthy) represent a health alert where everyone may experience serious health effects. Above 300 (Hazardous) is an emergency condition where the entire population is likely to be affected, with serious health impacts even for healthy individuals."
+  },
+  {
+    question: "Why is air quality often worse in winter?",
+    answer: "Air quality often deteriorates in winter due to several factors: 1) Temperature inversions trap pollutants close to the ground, 2) Increased heating needs lead to more fuel burning, especially wood and coal in residential areas, 3) Cold engines produce more emissions and vehicles idle longer, 4) Reduced mixing of air due to lower temperatures, 5) Less rainfall in some regions means fewer natural cleansing events, and 6) In very cold areas, people spend more time indoors with reduced ventilation. These factors combine to create higher concentration of pollutants, particularly PM2.5."
   }
 ];
 
-// Project-specific keywords to help with matching user queries
+// Expanded project keywords to help with matching user queries
 const projectKeywords = {
   clearcity: ["clearcity", "clear city", "this app", "this application", "the app", "app", "website", "site", "dashboard", "platform"],
   features: ["features", "capabilities", "functions", "functionality", "what can", "able to", "how to use", "usage", "instructions"],
@@ -129,7 +180,13 @@ const projectKeywords = {
   map: ["map", "visualization", "visual", "view", "display", "show", "locate", "location", "city", "cities", "area", "region"],
   time: ["time", "history", "historical", "past", "previous", "forecast", "future", "prediction", "trend", "trends", "24 hours"],
   charts: ["chart", "graph", "plot", "line", "visualization", "trend", "patterns", "axis", "legend"],
-  pollutants: ["pm2.5", "pm10", "o3", "ozone", "no2", "nitrogen dioxide", "so2", "sulfur dioxide", "co", "carbon monoxide", "nh3", "ammonia", "particulate", "matter", "gas", "particle"]
+  pollutants: ["pm2.5", "pm10", "o3", "ozone", "no2", "nitrogen dioxide", "so2", "sulfur dioxide", "co", "carbon monoxide", "nh3", "ammonia", "particulate", "matter", "gas", "particle"],
+  cities: ["city", "cities", "urban", "location", "place", "town", "region", "area", "country", "world", "global", "metropolitan"],
+  comparison: ["most", "least", "worst", "best", "cleanest", "dirtiest", "polluted", "clean", "compare", "comparison", "higher", "lower", "better", "worse", "ranking", "rank", "top", "bottom"],
+  health: ["health", "healthy", "sick", "illness", "disease", "respiratory", "lungs", "asthma", "breathe", "breathing", "cardiovascular", "heart", "children", "elderly", "sensitive", "symptoms", "effects", "impact", "risk"],
+  weather: ["weather", "temperature", "rain", "wind", "humidity", "season", "seasonal", "winter", "summer", "spring", "fall", "inversion", "climate", "meteorological", "pressure"],
+  causes: ["cause", "causes", "source", "sources", "emission", "emissions", "produce", "producing", "create", "creating", "contribute", "contributing", "factor", "factors", "reason", "reasons", "origin", "origins"],
+  solutions: ["solution", "solutions", "reduce", "reducing", "mitigate", "mitigating", "improve", "improving", "clean", "cleaning", "policy", "policies", "regulation", "regulations", "action", "actions", "initiative", "initiatives", "protect", "protecting", "prevention", "prevent"]
 };
 
 const Chatbot: React.FC<ChatbotProps> = ({ onClose, airQualityData }) => {
@@ -302,217 +359,53 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose, airQualityData }) => {
     return null; // No chart question detected
   };
 
-  // Enhanced response generation with better context understanding for charts and API data
-  const generateResponse = (userInput: string): string => {
+  // Function to handle city comparison questions
+  const handleCityComparisonQuestion = (userInput: string): string | null => {
     const normalizedInput = userInput.toLowerCase();
     
-    // Check for specific pollutant questions first
-    const pollutantResponse = handlePollutantQuestion(userInput);
-    if (pollutantResponse) return pollutantResponse;
-    
-    // Check for chart-related questions
-    const chartResponse = handleChartQuestion(userInput);
-    if (chartResponse) return chartResponse;
-    
-    // Check for current air quality data request
-    if (normalizedInput.includes("current") && 
-        (normalizedInput.includes("air quality") || 
-         normalizedInput.includes("aqi") || 
-         normalizedInput.includes("pollution"))) {
-      return getCurrentAirQualityInfo();
-    }
-    
-    // Check for specific location air quality questions
-    if (containsKeywords(normalizedInput, ["what is", "how is", "tell me"]) &&
-        containsKeywords(normalizedInput, ["air quality", "aqi", "pollution"]) &&
-        !normalizedInput.includes("what is aqi")) {
+    // Handle "most polluted" questions
+    if ((normalizedInput.includes("most") || normalizedInput.includes("worst")) && 
+        (normalizedInput.includes("polluted") || normalizedInput.includes("pollution") || normalizedInput.includes("aqi") || normalizedInput.includes("air quality"))) {
+        
+      // If asking about cities
+      if (normalizedInput.includes("city") || normalizedInput.includes("cities") || normalizedInput.includes("urban")) {
+        return "Based on recent global air quality data, some of the most polluted cities in the world include Delhi (India), Lahore (Pakistan), Dhaka (Bangladesh), Kolkata (India), and Beijing (China). These cities often experience extremely high levels of PM2.5 and other pollutants, with AQI readings frequently reaching the 'Very Unhealthy' or 'Hazardous' range. Industrial emissions, vehicle exhaust, construction dust, and geographical factors that trap pollution contribute to these poor conditions.";
+      }
       
-      // Check if they're asking about the currently selected location
-      if (airQualityData && airQualityData.currentAqi !== undefined) {
-        return getCurrentAirQualityInfo();
-      } else {
-        return "To check air quality for a specific location, you can either search for a city using the search bar at the top of the application or click directly on the map. Once you select a location, I can provide you with detailed air quality information for that area.";
+      // If asking about countries
+      if (normalizedInput.includes("country") || normalizedInput.includes("countries") || normalizedInput.includes("nation")) {
+        return "According to recent global air quality data, the countries with the worst air pollution problems include Bangladesh, Pakistan, India, Mongolia, and Afghanistan. These nations face challenges from rapid industrialization without sufficient environmental controls, high population density, widespread use of solid fuels for cooking and heating, vehicle emissions, and in some cases, geographical factors that trap pollution.";
       }
     }
     
-    // Check for a question about trend analysis
-    if (containsKeywords(normalizedInput, ["trend", "pattern", "change", "changing", "improving", "worsening"]) &&
-        containsKeywords(normalizedInput, ["air quality", "pollution", "aqi"])) {
+    // Handle "cleanest air" questions
+    if ((normalizedInput.includes("cleanest") || normalizedInput.includes("best")) && 
+        (normalizedInput.includes("air") || normalizedInput.includes("aqi") || normalizedInput.includes("quality"))) {
+        
+      // If asking about cities
+      if (normalizedInput.includes("city") || normalizedInput.includes("cities") || normalizedInput.includes("urban")) {
+        return "Cities with the cleanest air typically include Reykjavik (Iceland), Wellington (New Zealand), Zurich (Switzerland), Helsinki (Finland), and Honolulu (USA). These cities benefit from strict environmental regulations, favorable geographical conditions that disperse pollutants, lower population density, clean energy sources, and in some cases, beneficial ocean winds that help clear the air. They typically maintain AQI readings in the 'Good' range with very low PM2.5 levels.";
+      }
       
-      if (airQualityData?.hasHistoricalData) {
-        return `You can analyze air quality trends for ${airQualityData.cityName || "this location"} by looking at the historical chart below the map. This chart shows how different pollutants (PM2.5, PM10, O₃, and NO₂) have changed over the past 24 hours. Look for patterns like daily peaks and valleys, which often correspond to traffic patterns and temperature changes throughout the day.`;
-      } else {
-        return "To analyze air quality trends, select a location on the map or search for a city. The historical chart will show you how different pollutants have changed over the past 24 hours. Look for patterns like higher pollution during rush hours or changes related to weather conditions. The forecast chart can also help you anticipate upcoming changes in air quality.";
+      // If asking about countries
+      if (normalizedInput.includes("country") || normalizedInput.includes("countries") || normalizedInput.includes("nation")) {
+        return "Countries with the cleanest air quality generally include Iceland, New Zealand, Australia, Estonia, Finland, and Sweden. These nations typically have a combination of favorable factors: lower population density, strict environmental regulations, high reliance on renewable energy, modern transportation systems, and geographical features that help disperse pollutants. Many maintain annual PM2.5 levels below the WHO guideline of 5 μg/m³.";
       }
     }
     
-    // Check for irrelevant questions or non-project content
-    const isProjectRelated = Object.values(projectKeywords).some(category => 
-      containsKeywords(normalizedInput, category)
-    ) || normalizedInput.includes("pollution") || normalizedInput.includes("air") || normalizedInput.includes("quality");
-    
-    if (!isProjectRelated && !normalizedInput.includes("help") && !normalizedInput.includes("hi") && !normalizedInput.includes("hello")) {
-      return "I'm designed to help with questions about air quality and the ClearCity application. If you have questions about those topics, I'd be happy to assist you!";
-    }
-    
-    // Check for AQI level questions
-    const aqiMatch = normalizedInput.match(/what (is|does) (aqi|air quality index) (level )?(of )?(\d+)( mean)?/);
-    if (aqiMatch) {
-      const level = parseInt(aqiMatch[5]);
-      if (level >= 1 && level <= 5) {
-        const aqiInfo = AQI_LEVELS[level - 1];
-        return `AQI ${level} is rated as "${aqiInfo.level}". ${aqiInfo.description} ${aqiInfo.healthImplications}`;
-      }
-    }
-    
-    // Check for FAQ matches - exact and fuzzy
-    for (const faq of faqData) {
-      if (normalizedInput.includes(faq.question.toLowerCase()) || 
-          (normalizedInput.length > 5 && faq.question.toLowerCase().includes(normalizedInput))) {
-        return faq.answer;
-      }
-    }
-    
-    // Check for feature/capability questions about the app
-    if ((containsKeywords(normalizedInput, projectKeywords.features) && 
-         containsKeywords(normalizedInput, projectKeywords.clearcity)) || 
-        normalizedInput.includes("what does this do") || 
-        normalizedInput.includes("what can this do")) {
-      return "ClearCity is a real-time urban pollution tracker that shows air quality data across cities worldwide. You can search for specific cities, view current AQI levels, check pollutant details, see historical data for the past 24 hours, and view air quality forecasts. You can also click directly on the map to check air quality at specific locations.";
-    }
-    
-    // Check for API key related questions
-    if (containsKeywords(normalizedInput, projectKeywords.api)) {
-      return "ClearCity requires an OpenWeatherMap API key to function. You'll need to enter your API key when you first open the application. You can get a free API key by signing up at the OpenWeatherMap website. This key allows the application to fetch real-time air quality data.";
-    }
-    
-    // Check for data visualization questions
-    if ((containsKeywords(normalizedInput, projectKeywords.map) || 
-         containsKeywords(normalizedInput, ["chart", "graph"])) && 
-        containsKeywords(normalizedInput, projectKeywords.airQuality)) {
-      return "ClearCity visualizes air quality data in several ways: an interactive map using color-coded markers to show AQI levels across locations, detailed charts showing historical 24-hour data trends, and forecast graphs for upcoming air quality predictions. You can interact with the map to select specific locations or use the search feature to find cities.";
-    }
-    
-    // Check for common queries
-    if (normalizedInput.includes("hello") || normalizedInput.includes("hi")) {
-      return "Hello! How can I help you with air quality information or using the ClearCity application today?";
-    }
-    
-    if (normalizedInput.includes("thank")) {
-      return "You're welcome! If you have any more questions about air quality or using ClearCity, feel free to ask.";
-    }
-    
-    if (normalizedInput.includes("bye")) {
-      return "Goodbye! Stay healthy and breathe clean air!";
-    }
-    
-    if (normalizedInput.includes("how are you")) {
-      return "I'm just a chatbot, but I'm functioning well and ready to help you with air quality information and using ClearCity!";
-    }
-    
-    if (normalizedInput.includes("help")) {
-      return "I can answer questions about air quality, pollution, health effects, and provide information about using the ClearCity application. You can ask about AQI levels, pollutants, how to interpret the data, or how to use specific features of the app.";
-    }
-    
-    // Topic detection for broader categories
-    if (containsKeywords(normalizedInput, ["pollutant", "pollution", "pm2.5", "pm10", "ozone", "no2", "so2", "co"])) {
-      return "ClearCity tracks key air pollutants including particulate matter (PM2.5 and PM10), ozone (O₃), nitrogen dioxide (NO₂), sulfur dioxide (SO₂), and carbon monoxide (CO). These pollutants can cause various health issues and environmental damage. You can see detailed information about each pollutant's concentration when you select a location on the map or search for a city.";
-    }
-    
-    if (containsKeywords(normalizedInput, ["health", "effect", "impact", "dangerous"])) {
-      return "Air pollution can cause or worsen respiratory conditions like asthma and COPD, cardiovascular issues, and is linked to developmental problems. Children, elderly, and those with pre-existing conditions are most vulnerable. ClearCity helps you monitor air quality so you can take appropriate precautions when levels are harmful.";
-    }
-    
-    if (containsKeywords(normalizedInput, ["protect", "safety", "safe", "precaution", "mask"])) {
-      return "To protect yourself from air pollution: check ClearCity daily for air quality forecasts, limit outdoor activities during high pollution, use air purifiers indoors, keep windows closed during poor air quality events, and consider wearing appropriate masks when necessary. The app's color-coded system helps you easily determine when additional precautions are needed.";
-    }
-    
-    // Default response for unrecognized queries related to air quality
-    if (containsKeywords(normalizedInput, projectKeywords.airQuality)) {
-      return "I understand you're asking about air quality. ClearCity provides comprehensive air quality data including AQI values, pollutant concentrations, historical trends, and forecasts. Could you specify what aspect of air quality information you're looking for?";
-    }
-    
-    // Very general default response
-    return "I'm not sure I understand your question about ClearCity or air quality. I can help with questions about air quality data, pollutants, health effects, using the application features, or interpreting AQI values. Could you rephrase your question?";
-  };
-
-  const handleSend = () => {
-    if (input.trim() === "") return;
-
-    // Add user message
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      type: "user",
-      text: input,
-    };
-    setMessages([...messages, userMessage]);
-    
-    // Generate and add bot response
-    setTimeout(() => {
-      const botResponse: Message = {
-        id: (Date.now() + 1).toString(),
-        type: "bot",
-        text: generateResponse(input),
-      };
-      setMessages((prevMessages) => [...prevMessages, botResponse]);
-    }, 500);
-    
-    setInput("");
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      handleSend();
-    }
-  };
-
-  return (
-    <Card className="fixed bottom-20 right-6 w-80 md:w-96 h-[500px] z-50 shadow-lg flex flex-col">
-      <div className="p-3 bg-primary text-white flex justify-between items-center rounded-t-lg">
-        <h3 className="font-medium">ClearCity Assistant</h3>
-        <button onClick={onClose} className="text-white hover:text-gray-200">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-        </button>
-      </div>
+    // Handle "what is PM2.5" questions with location context
+    if (normalizedInput.includes("pm2.5") && 
+        (normalizedInput.includes("typical") || normalizedInput.includes("average") || normalizedInput.includes("normal") || normalizedInput.includes("levels"))) {
       
-      <ScrollArea className="flex-grow p-4">
-        <div className="space-y-4">
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex ${
-                message.type === "user" ? "justify-end" : "justify-start"
-              }`}
-            >
-              <div
-                className={`max-w-[75%] px-4 py-2 rounded-lg ${
-                  message.type === "user"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-foreground"
-                }`}
-              >
-                {message.text}
-              </div>
-            </div>
-          ))}
-          <div ref={messagesEndRef} />
-        </div>
-      </ScrollArea>
+      // If asking about global or regional PM2.5
+      if (containsKeywords(normalizedInput, ["world", "global", "average", "typical"])) {
+        return "Globally, annual average PM2.5 levels vary widely by region. According to recent data, the global population-weighted annual mean concentration is around 40 μg/m³. However, there are significant regional variations: parts of South Asia average over 70 μg/m³, East Asia around 35 μg/m³, Western Europe around 10-15 μg/m³, and North America around 7-12 μg/m³. The WHO guideline for annual mean PM2.5 is 5 μg/m³, which is exceeded in most urban areas worldwide.";
+      }
       
-      <div className="p-3 border-t flex gap-2">
-        <Input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="Type your question..."
-          className="flex-grow"
-        />
-        <Button onClick={handleSend}>
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="rotate-90"><path d="m6 12 6-9 6 9"/><path d="m6 12 6 9 6-9"/></svg>
-        </Button>
-      </div>
-    </Card>
-  );
-};
-
-export default Chatbot;
+      // If the user has selected a location, provide context
+      if (airQualityData?.pollutants?.pm2_5 !== undefined) {
+        const currentLevel = airQualityData.pollutants.pm2_5;
+        let evaluation = "";
+        
+        if (currentLevel <= 5) evaluation = "which is within the WHO guideline of 5 μg/m³ - this is excellent air quality";
+        else if (currentLevel <= 10) evaluation = "which is above the WHO guideline but still relatively good compared to global averages";
