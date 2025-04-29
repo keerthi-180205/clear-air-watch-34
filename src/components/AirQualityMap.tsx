@@ -18,8 +18,31 @@ L.Icon.Default.mergeOptions({
 });
 
 type Props = {
-  onAirQualityUpdate?: (data: AirQualityItem | null) => void;
+  onAirQualityUpdate?: (data: AirQualityItem | null, locationName?: string) => void;
   center?: [number, number]; // Added center prop
+};
+
+// Function to fetch location name from coordinates using reverse geocoding
+const fetchLocationName = async (lat: number, lng: number): Promise<string> => {
+  try {
+    const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10`);
+    const data = await response.json();
+    
+    // Extract relevant location information
+    if (data && data.display_name) {
+      // Parse the display_name to get a cleaner location name
+      const parts = data.display_name.split(', ');
+      // Return first part (typically city/town) and country (usually last part)
+      if (parts.length >= 3) {
+        return `${parts[0]}, ${parts[parts.length - 1]}`;
+      }
+      return data.display_name;
+    }
+    return "Unknown location";
+  } catch (error) {
+    console.error('Error fetching location name:', error);
+    return "Unknown location";
+  }
 };
 
 // This component handles map click events and updates air quality data
@@ -39,9 +62,12 @@ const MapClickHandler = ({ onAirQualityUpdate }: Props) => {
           return;
         }
         
+        // Get location name
+        const locationName = await fetchLocationName(lat, lng);
+        
         const data = await getCurrentAirQuality(lat, lng, apiKey);
         if (data && data.list && data.list.length > 0) {
-          onAirQualityUpdate && onAirQualityUpdate(data.list[0]);
+          onAirQualityUpdate && onAirQualityUpdate(data.list[0], locationName);
         }
       } catch (error) {
         console.error('Error fetching air quality data:', error);
@@ -77,6 +103,7 @@ const AirQualityMap = ({ onAirQualityUpdate, center = [20, 0] }: Props) => {
     lat: number;
     lng: number;
     aqiData: AirQualityItem | null;
+    name: string;
   } | null>(null);
   
   const { apiKey } = useApiKey();
@@ -91,10 +118,13 @@ const AirQualityMap = ({ onAirQualityUpdate, center = [20, 0] }: Props) => {
         return;
       }
       
+      // Get location name
+      const locationName = await fetchLocationName(lat, lng);
+      
       const data = await getCurrentAirQuality(lat, lng, apiKey);
       if (data && data.list && data.list.length > 0) {
-        setSelectedLocation({ lat, lng, aqiData: data.list[0] });
-        onAirQualityUpdate && onAirQualityUpdate(data.list[0]);
+        setSelectedLocation({ lat, lng, aqiData: data.list[0], name: locationName });
+        onAirQualityUpdate && onAirQualityUpdate(data.list[0], locationName);
       }
     } catch (error) {
       console.error('Error fetching air quality data:', error);
@@ -114,7 +144,17 @@ const AirQualityMap = ({ onAirQualityUpdate, center = [20, 0] }: Props) => {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         
-        <MapClickHandler onAirQualityUpdate={onAirQualityUpdate} />
+        <MapClickHandler onAirQualityUpdate={(data, locationName) => {
+          if (data && locationName) {
+            setSelectedLocation({ 
+              lat: data.coord.lat, 
+              lng: data.coord.lon, 
+              aqiData: data,
+              name: locationName 
+            });
+            onAirQualityUpdate && onAirQualityUpdate(data, locationName);
+          }
+        }} />
         <MapCenterUpdater center={center} />
         
         {selectedLocation && selectedLocation.aqiData && (
@@ -139,6 +179,9 @@ const AirQualityMap = ({ onAirQualityUpdate, center = [20, 0] }: Props) => {
             })}
           >
             <Popup className="air-quality-popup">
+              <div className="mb-1">
+                <strong>{selectedLocation.name}</strong>
+              </div>
               <AqiCard airQuality={selectedLocation.aqiData} />
             </Popup>
           </Marker>

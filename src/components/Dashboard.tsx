@@ -20,6 +20,7 @@ const Dashboard = () => {
   const { apiKey } = useApiKey();
   const [selectedAirQuality, setSelectedAirQuality] = useState<AirQualityItem | null>(null);
   const [selectedCity, setSelectedCity] = useState<City | null>(null);
+  const [selectedLocationName, setSelectedLocationName] = useState<string | undefined>(undefined);
   const [mapCenter, setMapCenter] = useState<[number, number]>([40.7128, -74.0060]); // Default to New York
   
   // Get historical data for the last 24 hours
@@ -68,6 +69,7 @@ const Dashboard = () => {
         
         if (data && data.list && data.list.length > 0) {
           setSelectedAirQuality(data.list[0]);
+          setSelectedLocationName(selectedCity.name);
         }
       } catch (error) {
         console.error("Error fetching city air quality:", error);
@@ -81,7 +83,23 @@ const Dashboard = () => {
   const handleCitySelect = (city: City) => {
     setSelectedCity(city);
     setMapCenter([city.coord.lat, city.coord.lon]);
+    setSelectedLocationName(city.name);
     console.log("Selected city:", city.name, "at coordinates:", city.coord.lat, city.coord.lon);
+  };
+
+  const handleMapLocationSelect = (airQuality: AirQualityItem | null, locationName?: string) => {
+    setSelectedAirQuality(airQuality);
+    setSelectedLocationName(locationName);
+    
+    // Clear selected city when clicking on map at a different location
+    if (airQuality) {
+      // Only clear if the coordinates don't match the selected city
+      if (selectedCity && 
+          (Math.abs(airQuality.coord.lat - selectedCity.coord.lat) > 0.01 ||
+           Math.abs(airQuality.coord.lon - selectedCity.coord.lon) > 0.01)) {
+        setSelectedCity(null);
+      }
+    }
   };
 
   return (
@@ -93,7 +111,7 @@ const Dashboard = () => {
           <h2 className="text-2xl font-bold mb-4">Air Quality Map</h2>
           <div className="flex-1">
             <AirQualityMap 
-              onAirQualityUpdate={setSelectedAirQuality}
+              onAirQualityUpdate={handleMapLocationSelect}
               center={mapCenter}
             />
           </div>
@@ -112,7 +130,7 @@ const Dashboard = () => {
                     <div className="space-y-6">
                       <AqiCard 
                         airQuality={selectedAirQuality} 
-                        cityName={selectedCity ? selectedCity.name : "Selected Location"}
+                        cityName={selectedLocationName || "Selected Location"}
                       />
                       <PollutantInfo airQuality={selectedAirQuality} />
                     </div>

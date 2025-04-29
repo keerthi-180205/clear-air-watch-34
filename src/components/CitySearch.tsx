@@ -1,12 +1,13 @@
 
 import React, { useState } from 'react';
-import { Search } from 'lucide-react';
+import { Search, MapPin } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { City } from '@/types/airQuality';
 import { useApiKey } from '@/contexts/ApiKeyContext';
 import { getCityByName } from '@/services/airQualityService';
 import { toast } from 'sonner';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 // Popular cities with their coordinates from around the world
 const popularCities: City[] = [
@@ -31,6 +32,14 @@ const popularCities: City[] = [
   { name: "Seoul", coord: { lat: 37.5665, lon: 126.9780 } },
   { name: "Bangkok", coord: { lat: 13.7563, lon: 100.5018 } },
   
+  // India
+  { name: "Delhi", coord: { lat: 28.6517178, lon: 77.2219388 } },
+  { name: "Bengaluru", coord: { lat: 12.9767936, lon: 77.590082 } },
+  { name: "Chennai", coord: { lat: 13.0826802, lon: 80.2707184 } },
+  { name: "Kolkata", coord: { lat: 22.572646, lon: 88.363895 } },
+  { name: "Hyderabad", coord: { lat: 17.384, lon: 78.4564 } },
+  { name: "Mysuru", coord: { lat: 12.3051828, lon: 76.6553609 } },
+  
   // Africa
   { name: "Cairo", coord: { lat: 30.0444, lon: 31.2357 } },
   { name: "Lagos", coord: { lat: 6.5244, lon: 3.3792 } },
@@ -50,7 +59,27 @@ interface CitySearchProps {
 const CitySearch: React.FC<CitySearchProps> = ({ onCitySelect }) => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isSearching, setIsSearching] = useState<boolean>(false);
+  const [filteredCities, setFilteredCities] = useState<City[]>([]);
+  const [showDropdown, setShowDropdown] = useState<boolean>(false);
   const { apiKey } = useApiKey();
+  
+  // Handle input change for real-time filtering
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    
+    if (query.length > 1) {
+      // Filter popular cities as you type
+      const filtered = popularCities.filter(city => 
+        city.name.toLowerCase().includes(query.toLowerCase())
+      );
+      setFilteredCities(filtered);
+      setShowDropdown(true);
+    } else {
+      setFilteredCities([]);
+      setShowDropdown(false);
+    }
+  };
   
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,6 +97,7 @@ const CitySearch: React.FC<CitySearchProps> = ({ onCitySelect }) => {
     if (foundCity) {
       onCitySelect(foundCity);
       toast.success(`Showing data for ${foundCity.name}`);
+      setShowDropdown(false);
       return;
     }
     
@@ -85,6 +115,7 @@ const CitySearch: React.FC<CitySearchProps> = ({ onCitySelect }) => {
       if (cityData) {
         onCitySelect(cityData);
         toast.success(`Showing data for ${cityData.name}`);
+        setShowDropdown(false);
       } else {
         toast.error("City not found. Please try another search.");
       }
@@ -96,23 +127,58 @@ const CitySearch: React.FC<CitySearchProps> = ({ onCitySelect }) => {
     }
   };
   
-  const handlePopularCityClick = (city: City) => {
+  const handleCitySelect = (city: City) => {
     onCitySelect(city);
-    setSearchQuery(city.name); // Update the search input with selected city
+    setSearchQuery(city.name);
+    setShowDropdown(false);
     toast.success(`Showing data for ${city.name}`);
   };
   
+  // Handle clicking outside to close the dropdown
+  React.useEffect(() => {
+    const handleClickOutside = () => {
+      setShowDropdown(false);
+    };
+    
+    document.addEventListener('click', handleClickOutside);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, []);
+  
   return (
     <div className="mb-4 space-y-4">
-      <form onSubmit={handleSearch} className="flex space-x-2">
-        <div className="flex-1 relative">
+      <form onSubmit={handleSearch} className="flex space-x-2 relative">
+        <div className="flex-1 relative" onClick={(e) => e.stopPropagation()}>
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search for any city in the world..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={handleInputChange}
             className="pl-8"
+            onFocus={() => {
+              if (searchQuery.length > 1) {
+                setShowDropdown(true);
+              }
+            }}
           />
+          
+          {showDropdown && filteredCities.length > 0 && (
+            <div className="absolute z-10 w-full mt-1 bg-white border rounded-md shadow-lg">
+              <ScrollArea className="max-h-60">
+                {filteredCities.map((city) => (
+                  <div
+                    key={`${city.name}-${city.coord.lat}-${city.coord.lon}`}
+                    className="p-2 hover:bg-gray-100 cursor-pointer flex items-center space-x-2"
+                    onClick={() => handleCitySelect(city)}
+                  >
+                    <MapPin className="h-4 w-4 text-primary" />
+                    <span>{city.name}</span>
+                  </div>
+                ))}
+              </ScrollArea>
+            </div>
+          )}
         </div>
         <Button type="submit" disabled={isSearching}>
           {isSearching ? "Searching..." : "Search"}
@@ -124,10 +190,10 @@ const CitySearch: React.FC<CitySearchProps> = ({ onCitySelect }) => {
         <div className="flex flex-wrap gap-2">
           {popularCities.slice(0, 12).map((city) => (
             <Button
-              key={city.name}
+              key={`${city.name}-button`}
               variant="outline"
               size="sm"
-              onClick={() => handlePopularCityClick(city)}
+              onClick={() => handleCitySelect(city)}
             >
               {city.name}
             </Button>
