@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -190,6 +189,17 @@ const projectKeywords = {
   solutions: ["solution", "solutions", "reduce", "reducing", "mitigate", "mitigating", "improve", "improving", "clean", "cleaning", "policy", "policies", "regulation", "regulations", "action", "actions", "initiative", "initiatives", "protect", "protecting", "prevention", "prevent"]
 };
 
+// Suggested prompts that users can click on
+const suggestedPrompts = [
+  "What is AQI?",
+  "How do I read the charts?",
+  "Which cities have the worst pollution?",
+  "What are safe levels for PM2.5?",
+  "How does weather affect air quality?",
+  "What health risks come from air pollution?",
+  "How does the ClearCity app work?"
+];
+
 const Chatbot: React.FC<ChatbotProps> = ({ onClose, airQualityData }) => {
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -199,6 +209,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose, airQualityData }) => {
     },
   ]);
   const [input, setInput] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -264,7 +275,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose, airQualityData }) => {
       if (airQualityData?.pollutants?.pm2_5 !== undefined) {
         return `The current PM2.5 level for ${airQualityData.cityName || "this location"} is ${airQualityData.pollutants.pm2_5.toFixed(1)} μg/m³. PM2.5 refers to fine particulate matter smaller than 2.5 micrometers that can penetrate deep into the lungs and bloodstream. The World Health Organization recommends levels below 5 μg/m³ for annual exposure.`;
       } else {
-        return "PM2.5 refers to fine particulate matter with a diameter of 2.5 micrometers or smaller. These particles are harmful as they can penetrate deep into your lungs and even enter your bloodstream. Select a location on the map or search for a city to see PM2.5 levels.";
+        return "PM2.5 refers to fine particulate matter with a diameter of 2.5 micrometers or smaller. These particles are harmful as they can penetrate deep into your lungs and even enter the bloodstream. Select a location on the map or search for a city to see PM2.5 levels.";
       }
     }
     
@@ -434,6 +445,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose, airQualityData }) => {
     
     setMessages(prev => [...prev, newUserMessage]);
     setInput("");
+    setShowSuggestions(false); // Hide suggestions after a user message
     
     // Process the user input and generate a response
     setTimeout(() => {
@@ -522,13 +534,17 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose, airQualityData }) => {
     }, 600); // Small delay to simulate processing time
   };
 
+  const handleSuggestionClick = (suggestion: string) => {
+    handleUserInput(suggestion);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     handleUserInput(input);
   };
 
   return (
-    <Card className="fixed right-6 bottom-20 w-80 md:w-96 h-[500px] shadow-xl border border-border z-50 flex flex-col">
+    <Card className="fixed right-6 bottom-20 w-80 md:w-96 h-[500px] shadow-xl border border-border z-[100] flex flex-col">
       <div className="bg-primary text-white p-3 flex justify-between items-center rounded-t-lg">
         <h3 className="font-medium">ClearCity Assistant</h3>
         <button 
@@ -557,6 +573,25 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose, airQualityData }) => {
               ))}
             </div>
           ))}
+          
+          {/* Suggested prompts section */}
+          {showSuggestions && messages.length === 1 && (
+            <div className="mt-4 space-y-2">
+              <p className="text-sm text-muted-foreground">Try asking:</p>
+              <div className="flex flex-wrap gap-2">
+                {suggestedPrompts.map((prompt, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleSuggestionClick(prompt)}
+                    className="bg-primary/5 hover:bg-primary/10 text-sm py-1 px-3 rounded-full text-primary transition-colors"
+                  >
+                    {prompt}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          
           <div ref={messagesEndRef} />
         </div>
       </ScrollArea>
