@@ -392,7 +392,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose, airQualityData }) => {
           normalizedInput.includes("upcoming")) {
         
         if (airQualityData?.hasForecastData) {
-          return `The forecast chart shows predicted air quality data for ${airQualityData.cityName || "the selected location"} in the upcoming hours. Like the historical chart, each colored line represents a different pollutant: purple for PM2.5, green for PM10, yellow for Ozone (O₃), and orange for Nitrogen Dioxide (NO₂). This can help you plan outdoor activities based on expected air quality.`;
+          return `The forecast chart shows predicted air quality data for ${airQualityData.cityName || "the selected location"} in the upcoming hours. Like the historical chart, each colored line represents a different pollutant: purple for PM2.5, green for PM10, yellow for Ozone, and orange for NO₂. This can help you plan outdoor activities based on expected air quality.`;
         } else {
           return "The forecast chart shows predicted air quality for the next several hours. It uses the same color-coding as the historical chart (purple for PM2.5, green for PM10, yellow for Ozone, and orange for NO₂) and can help you plan activities based on expected air quality. The forecast chart appears when you select a location on the map or search for a city.";
         }
@@ -505,7 +505,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose, airQualityData }) => {
   const handleSendMessage = () => {
     if (!input.trim()) return;
     
-    const userMessage = {
+    const userMessage: Message = {
       id: Date.now().toString(),
       type: "user",
       text: input,
@@ -519,7 +519,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose, airQualityData }) => {
     const answer = findBestAnswer(input);
     
     setTimeout(() => {
-      const botMessage = {
+      const botMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: "bot",
         text: answer || "I don't have information about that yet. Would you like to know something else about air quality or the ClearCity app?",
@@ -532,7 +532,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose, airQualityData }) => {
     setInput(prompt);
     setShowSuggestions(false);
     
-    const userMessage = {
+    const userMessage: Message = {
       id: Date.now().toString(),
       type: "user",
       text: prompt,
@@ -544,7 +544,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose, airQualityData }) => {
     const answer = findBestAnswer(prompt);
     
     setTimeout(() => {
-      const botMessage = {
+      const botMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: "bot",
         text: answer || "I don't have information about that yet. Would you like to know something else about air quality or the ClearCity app?",
