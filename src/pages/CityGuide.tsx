@@ -122,7 +122,7 @@ const MainApp = () => {
   const currentCityData = getCityInfo(selectedCity);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#000080] text-white">
+    <div className="min-h-screen flex flex-col bg-[#33C3F0] text-white">
       <Header />
       <main className="flex-1 container py-6">
         {isKeyValid ? (

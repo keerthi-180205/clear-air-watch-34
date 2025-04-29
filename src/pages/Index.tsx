@@ -9,7 +9,7 @@ const MainApp = () => {
   const { isKeyValid } = useApiKey();
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#000080]">
+    <div className="min-h-screen flex flex-col bg-[#33C3F0]">
       <div className="pattern-overlay"></div>
       <Header />
       <main className="flex-1 container py-6 text-white">

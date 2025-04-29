@@ -7,7 +7,7 @@ import { Info, Users, Map, BookOpen, MessageSquare, ChartLine } from "lucide-rea
 const About = () => {
   return (
     <ApiKeyProvider>
-      <div className="min-h-screen flex flex-col bg-[#000080] text-white">
+      <div className="min-h-screen flex flex-col bg-[#33C3F0] text-white">
         <Header />
         <main className="flex-1 container py-6">
           <div className="max-w-4xl mx-auto">
