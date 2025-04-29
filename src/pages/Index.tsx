@@ -9,19 +9,19 @@ const MainApp = () => {
   const { isKeyValid } = useApiKey();
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-[#000080]">
       <div className="pattern-overlay"></div>
       <Header />
-      <main className="flex-1 container py-6">
+      <main className="flex-1 container py-6 text-white">
         {isKeyValid ? (
           <Dashboard />
         ) : (
           <div className="flex items-center justify-center flex-col h-full min-h-[80vh]">
-            <div className="content-section p-8 max-w-md w-full animate-fade-in">
-              <h2 className="text-2xl font-bold mb-8 text-center bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+            <div className="content-section bg-white/10 backdrop-blur-sm p-8 max-w-md w-full animate-fade-in border border-white/20">
+              <h2 className="text-2xl font-bold mb-8 text-center bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">
                 Welcome to ClearCity
               </h2>
-              <p className="text-muted-foreground mb-8 max-w-md text-center">
+              <p className="text-white/80 mb-8 max-w-md text-center">
                 Real-time Urban Pollution Tracker. To get started, please enter your OpenWeatherMap API key below.
                 This will allow us to fetch air quality data for cities around the world.
               </p>
