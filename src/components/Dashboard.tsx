@@ -249,10 +249,10 @@ const Dashboard = () => {
         </div>
       )}
 
-      {/* Chatbot toggle button - updated z-index */}
+      {/* Chatbot toggle button - with higher z-index */}
       <button 
         onClick={toggleChatbot} 
-        className="fixed right-6 bottom-6 bg-primary text-white p-3 rounded-full shadow-lg hover:bg-primary/80 transition-colors z-[200]"
+        className="fixed right-6 bottom-6 bg-primary text-white p-3 rounded-full shadow-lg hover:bg-primary/80 transition-colors z-[500]"
         aria-label="Open chat"
       >
         {isChatbotOpen ? (
@@ -262,13 +262,15 @@ const Dashboard = () => {
         )}
       </button>
       
-      {/* Chatbot component */}
-      {isChatbotOpen && (
-        <Chatbot 
-          onClose={() => setIsChatbotOpen(false)} 
-          airQualityData={airQualityContextData}
-        />
-      )}
+      {/* Chatbot component - we'll ensure this always appears on top */}
+      <div className="chatbot-container" style={{ position: 'relative', zIndex: 1000 }}>
+        {isChatbotOpen && (
+          <Chatbot 
+            onClose={() => setIsChatbotOpen(false)} 
+            airQualityData={airQualityContextData}
+          />
+        )}
+      </div>
     </div>
   );
 };

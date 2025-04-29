@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -158,7 +157,13 @@
   .custom-marker {
     @apply shadow-lg;
   }
-
+  
+  /* Chatbot styling with z-index to ensure it's always on top */
+  .chatbot-container {
+    position: fixed;
+    z-index: 999;
+  }
+  
   /* Header styling */
   .app-header {
     @apply bg-white/80 backdrop-blur-md border-b border-gray-200/40 shadow-sm;
@@ -171,9 +176,20 @@
   }
 }
 
+/* Override any z-index issues with tailwind classes */
+.z-highest {
+  z-index: 9999 !important;
+}
+
+/* Ensure chatbot is always on top */
+[data-component="chatbot"] {
+  z-index: 1000 !important;
+}
+
 /* Enhance the map with better styling */
 .leaflet-container {
   font-family: inherit !important;
+  z-index: 10;
 }
 
 .leaflet-control-zoom {
@@ -242,4 +258,3 @@ main.container {
   pointer-events: none;
   opacity: 0.4;
 }
-
