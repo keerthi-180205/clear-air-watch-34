@@ -13,7 +13,7 @@ const Header = () => {
       <div className="container flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Wind className="text-primary h-6 w-6" />
-          <h1 className="text-xl font-bold text-primary">Clear Air Watch</h1>
+          <h1 className="text-xl font-bold text-primary">ClearCity</h1>
         </div>
         
         {isKeyValid ? (
@@ -25,7 +25,7 @@ const Header = () => {
               <DialogHeader>
                 <DialogTitle>Update API Key</DialogTitle>
                 <DialogDescription>
-                  Enter a new OpenWeatherMap API key to continue using Clear Air Watch.
+                  Enter a new OpenWeatherMap API key to continue using ClearCity.
                 </DialogDescription>
               </DialogHeader>
               <ApiKeyForm />

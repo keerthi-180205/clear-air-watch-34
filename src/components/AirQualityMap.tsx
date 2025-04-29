@@ -77,11 +77,11 @@ const AirQualityMap = ({ onAirQualityUpdate }: Props) => {
   return (
     <div className="h-full w-full rounded-lg overflow-hidden border border-border shadow-sm">
       <MapContainer
-        center={[40.7128, -74.0060]} // Default to New York
-        zoom={3}
+        center={[20, 0]} // Center on the world map
+        zoom={2} // Zoom out to show more of the world
         style={{ height: '100%', width: '100%' }}
-        whenReady={(mapEvent) => { 
-          mapRef.current = mapEvent.target;
+        whenReady={(mapInstance) => { 
+          mapRef.current = mapInstance.target;
         }}
       >
         <TileLayer
