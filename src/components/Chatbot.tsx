@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -61,6 +62,10 @@ const faqData = [
     answer: "To use ClearCity, you first need to enter your OpenWeatherMap API key. Then you can search for cities or click on the map to view air quality data for specific locations. The dashboard displays current air quality, historical data for the past 24 hours, and forecast data."
   },
   {
+    question: "How does the ClearCity app work?",
+    answer: "ClearCity works by connecting to the OpenWeatherMap API to fetch real-time air quality data. When you search for a city or click on the map, the app retrieves current air quality readings, historical data for the past 24 hours, and forecasts for that location. The data is displayed through an intuitive interface with color-coded AQI indicators and detailed pollutant information. You can also use the charts to visualize air quality trends and access this chatbot for additional information and guidance."
+  },
+  {
     question: "What information does ClearCity show?",
     answer: "ClearCity displays the Air Quality Index (AQI), individual pollutant levels (PM2.5, PM10, O3, NO2, SO2, CO), historical air quality data for the past 24 hours, and air quality forecasts. It also provides a map view of air quality across different locations."
   },
@@ -85,8 +90,8 @@ const faqData = [
     answer: "The charts in ClearCity visualize air quality data over time. The historical chart shows the past 24 hours of air quality measurements, while the forecast chart shows predicted air quality for upcoming hours. Both charts track pollutants like PM2.5, PM10, Ozone (O₃), and Nitrogen Dioxide (NO₂)."
   },
   {
-    question: "How do I read the line charts?",
-    answer: "The line charts display pollutant concentrations (y-axis) over time (x-axis). Each colored line represents a different pollutant: PM2.5, PM10, O₃, and NO₂. Higher values indicate higher pollution levels. You can hover over any point on the chart to see exact measurements for that time."
+    question: "How do I read the charts?",
+    answer: "The charts in ClearCity display pollutant concentrations (y-axis) over time (x-axis). Each colored line represents a different pollutant: purple for PM2.5, green for PM10, yellow for Ozone (O₃), and orange for Nitrogen Dioxide (NO₂). Higher values indicate higher pollution levels. You can hover over any point on the chart to see exact measurements for that time. The historical chart (left) shows the past 24 hours, while the forecast chart (right) shows predicted future values."
   },
   {
     question: "What is PM2.5?",
@@ -179,7 +184,7 @@ const projectKeywords = {
   data: ["data", "information", "stats", "statistics", "metrics", "measurements", "readings", "levels"],
   map: ["map", "visualization", "visual", "view", "display", "show", "locate", "location", "city", "cities", "area", "region"],
   time: ["time", "history", "historical", "past", "previous", "forecast", "future", "prediction", "trend", "trends", "24 hours"],
-  charts: ["chart", "graph", "plot", "line", "visualization", "trend", "patterns", "axis", "legend"],
+  charts: ["chart", "graph", "plot", "line", "visualization", "trend", "patterns", "axis", "legend", "read"],
   pollutants: ["pm2.5", "pm10", "o3", "ozone", "no2", "nitrogen dioxide", "so2", "sulfur dioxide", "co", "carbon monoxide", "nh3", "ammonia", "particulate", "matter", "gas", "particle"],
   cities: ["city", "cities", "urban", "location", "place", "town", "region", "area", "country", "world", "global", "metropolitan"],
   comparison: ["most", "least", "worst", "best", "cleanest", "dirtiest", "polluted", "clean", "compare", "comparison", "higher", "lower", "better", "worse", "ranking", "rank", "top", "bottom"],
@@ -218,6 +223,20 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose, airQualityData }) => {
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  // Function to find exact matches in the FAQ data
+  const findExactMatch = (text: string): string | null => {
+    // First try to find an exact match
+    const normalizedInput = text.toLowerCase().trim();
+    
+    for (const faq of faqData) {
+      if (faq.question.toLowerCase().trim() === normalizedInput) {
+        return faq.answer;
+      }
+    }
+    
+    return null;
   };
 
   // Function to check if a string contains any keywords from an array
@@ -322,14 +341,31 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose, airQualityData }) => {
     return null; // No specific pollutant question detected
   };
 
-  // Function to handle chart-related questions
+  // Improved function to handle chart-related questions
   const handleChartQuestion = (userInput: string): string | null => {
     const normalizedInput = userInput.toLowerCase();
     
+    // Direct match for "How do I read the charts?"
+    if (normalizedInput.includes("how") && 
+        (normalizedInput.includes("read") || normalizedInput.includes("interpret")) && 
+        normalizedInput.includes("chart")) {
+      
+      return "The charts in ClearCity display pollutant concentrations (y-axis) over time (x-axis). Each colored line represents a different pollutant: purple for PM2.5, green for PM10, yellow for Ozone (O₃), and orange for Nitrogen Dioxide (NO₂). Higher values indicate higher pollution levels. You can hover over any point on the chart to see exact measurements for that time. The historical chart (left) shows the past 24 hours, while the forecast chart (right) shows predicted future values.";
+    }
+    
+    // More flexible pattern matching
+    if ((normalizedInput.includes("chart") || normalizedInput.includes("graph") || 
+         normalizedInput.includes("plot")) && 
+        (normalizedInput.includes("read") || normalizedInput.includes("understand") || 
+         normalizedInput.includes("interpret") || normalizedInput.includes("how"))) {
+        
+      return "The charts in ClearCity display pollutant concentrations (y-axis) over time (x-axis). Each colored line represents a different pollutant: purple for PM2.5, green for PM10, yellow for Ozone (O₃), and orange for Nitrogen Dioxide (NO₂). Higher values indicate higher pollution levels. You can hover over any point on the chart to see exact measurements for that time. The historical chart (left) shows the past 24 hours, while the forecast chart (right) shows predicted future values.";
+    }
+    
+    // Questions about the historical chart
     if (containsKeywords(normalizedInput, ["what", "show", "explain", "about"]) && 
         containsKeywords(normalizedInput, projectKeywords.charts)) {
       
-      // Questions about the historical chart
       if (normalizedInput.includes("historical") || 
           normalizedInput.includes("history") || 
           normalizedInput.includes("past") || 
@@ -355,20 +391,41 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose, airQualityData }) => {
         }
       }
       
-      // General questions about chart reading
-      if (normalizedInput.includes("read") || 
-          normalizedInput.includes("understand") || 
-          normalizedInput.includes("interpret") ||
-          normalizedInput.includes("how to")) {
-        
-        return "The charts in ClearCity display pollutant concentrations (y-axis) over time (x-axis). Each colored line tracks a different pollutant: purple for PM2.5, green for PM10, yellow for Ozone (O₃), and orange for Nitrogen Dioxide (NO₂). Higher values indicate higher pollution levels. You can hover over any point to see the exact measurement for that time. The historical chart (left) shows the past 24 hours, while the forecast chart (right) shows predicted future values.";
-      }
-      
       // General chart information
       return "ClearCity displays two main charts: a historical chart showing air quality data for the past 24 hours, and a forecast chart showing predicted air quality for upcoming hours. Both charts track multiple pollutants (PM2.5, PM10, Ozone, and NO₂) using different colored lines. These visualizations help you understand air quality patterns over time and make informed decisions about outdoor activities.";
     }
     
     return null; // No chart question detected
+  };
+
+  // Improved function to handle app-related questions
+  const handleAppQuestion = (userInput: string): string | null => {
+    const normalizedInput = userInput.toLowerCase();
+    
+    // Direct match for "How does the ClearCity app work?"
+    if ((normalizedInput.includes("how") && 
+         normalizedInput.includes("work") && 
+         (normalizedInput.includes("clearcity") || normalizedInput.includes("clear city") || normalizedInput.includes("app")))) {
+      
+      return "ClearCity works by connecting to the OpenWeatherMap API to fetch real-time air quality data. When you search for a city or click on the map, the app retrieves current air quality readings, historical data for the past 24 hours, and forecasts for that location. The data is displayed through an intuitive interface with color-coded AQI indicators and detailed pollutant information. You can also use the charts to visualize air quality trends and access this chatbot for additional information and guidance.";
+    }
+    
+    // Questions about how to use the app
+    if ((normalizedInput.includes("how") && 
+         normalizedInput.includes("use") && 
+         (normalizedInput.includes("clearcity") || normalizedInput.includes("clear city") || normalizedInput.includes("app")))) {
+      
+      return "To use ClearCity, you first need to enter your OpenWeatherMap API key. Then you can search for cities or click on the map to view air quality data for specific locations. The dashboard displays current air quality, historical data for the past 24 hours, and forecast data. The color-coded AQI indicator shows the overall air quality level, while detailed pollutant information helps you understand specific components. You can also use this chatbot to ask questions about air quality or how to interpret the data.";
+    }
+    
+    // Questions about app features
+    if (containsKeywords(normalizedInput, projectKeywords.clearcity) && 
+        containsKeywords(normalizedInput, projectKeywords.features)) {
+      
+      return "ClearCity features include: 1) Real-time air quality data for locations worldwide, 2) Interactive map for exploring air quality in different areas, 3) City search functionality, 4) Detailed information about individual pollutants (PM2.5, PM10, O3, NO2, SO2, CO), 5) Historical air quality charts for the past 24 hours, 6) Air quality forecasts, 7) Color-coded AQI indicators for quick understanding of pollution levels, and 8) This interactive chatbot to answer your questions about air quality.";
+    }
+    
+    return null; // No app question detected
   };
 
   // Function to handle city comparison questions
@@ -452,44 +509,62 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose, airQualityData }) => {
       let botResponse = "";
       const normalizedInput = userText.toLowerCase();
       
-      // First, check for specific pollutant questions
-      const pollutantResponse = handlePollutantQuestion(userText);
-      if (pollutantResponse) {
-        botResponse = pollutantResponse;
+      // Try exact match first
+      const exactMatch = findExactMatch(userText);
+      if (exactMatch) {
+        botResponse = exactMatch;
+      }
+      // Check for chart-reading question specifically
+      else if (normalizedInput.includes("how") && 
+               normalizedInput.includes("read") && 
+               normalizedInput.includes("chart")) {
+        botResponse = "The charts in ClearCity display pollutant concentrations (y-axis) over time (x-axis). Each colored line represents a different pollutant: purple for PM2.5, green for PM10, yellow for Ozone (O₃), and orange for Nitrogen Dioxide (NO₂). Higher values indicate higher pollution levels. You can hover over any point on the chart to see exact measurements for that time. The historical chart (left) shows the past 24 hours, while the forecast chart (right) shows predicted future values.";
+      }
+      // Check for app functionality question specifically
+      else if (normalizedInput.includes("how") && 
+               normalizedInput.includes("app") && 
+               normalizedInput.includes("work")) {
+        botResponse = "ClearCity works by connecting to the OpenWeatherMap API to fetch real-time air quality data. When you search for a city or click on the map, the app retrieves current air quality readings, historical data for the past 24 hours, and forecasts for that location. The data is displayed through an intuitive interface with color-coded AQI indicators and detailed pollutant information. You can also use the charts to visualize air quality trends and access this chatbot for additional information and guidance.";
+      }
+      // Check for specific pollutant questions
+      else if (botResponse === "") {
+        const pollutantResponse = handlePollutantQuestion(userText);
+        if (pollutantResponse) botResponse = pollutantResponse;
       }
       // Check for chart-related questions
-      else if (containsKeywords(normalizedInput, projectKeywords.charts)) {
+      else if (botResponse === "" && containsKeywords(normalizedInput, projectKeywords.charts)) {
         const chartResponse = handleChartQuestion(userText);
         if (chartResponse) botResponse = chartResponse;
       }
+      // Check for app-related questions
+      else if (botResponse === "" && containsKeywords(normalizedInput, projectKeywords.clearcity)) {
+        const appResponse = handleAppQuestion(userText);
+        if (appResponse) botResponse = appResponse;
+      }
       // Check for city/country comparison questions
-      else if (containsKeywords(normalizedInput, projectKeywords.comparison) || 
-                containsKeywords(normalizedInput, projectKeywords.cities)) {
+      else if (botResponse === "" && (containsKeywords(normalizedInput, projectKeywords.comparison) || 
+                containsKeywords(normalizedInput, projectKeywords.cities))) {
         const comparisonResponse = handleCityComparisonQuestion(userText);
         if (comparisonResponse) botResponse = comparisonResponse;
       }
       // Handle current air quality questions
-      else if ((normalizedInput.includes("current") || normalizedInput.includes("now") || normalizedInput.includes("today")) && 
+      else if (botResponse === "" && (normalizedInput.includes("current") || normalizedInput.includes("now") || normalizedInput.includes("today")) && 
                 containsKeywords(normalizedInput, projectKeywords.airQuality)) {
         botResponse = getCurrentAirQualityInfo();
       }
-      // Check for app features/usage questions
-      else if (containsKeywords(normalizedInput, projectKeywords.clearcity) && 
+      // Check for app features/usage questions if still no response
+      else if (botResponse === "" && containsKeywords(normalizedInput, projectKeywords.clearcity) && 
                 (containsKeywords(normalizedInput, projectKeywords.features) || 
                 normalizedInput.includes("what") || 
                 normalizedInput.includes("how"))) {
         botResponse = "ClearCity is a real-time urban pollution tracker that helps you monitor air quality in cities worldwide. You can:\n\n1. Search for specific cities or click on the map to view air quality\n2. View current AQI levels and individual pollutant concentrations\n3. Explore historical data (past 24 hours) and forecasted air quality\n4. Understand the health implications of different pollution levels\n\nTo get started, make sure you've entered your OpenWeatherMap API key, then search for a city or click directly on the map.";
       }
-      // Handle API-related questions
-      else if (containsKeywords(normalizedInput, projectKeywords.api)) {
-        botResponse = "ClearCity uses the OpenWeatherMap API to fetch air quality data. You need your own API key to use this application. If you don't have one yet, you can sign up for free at the OpenWeatherMap website. Once you have your key, enter it in the form on the welcome screen to start exploring air quality data.";
-      }
       // Handle health impact questions
-      else if (containsKeywords(normalizedInput, projectKeywords.health)) {
+      else if (botResponse === "" && containsKeywords(normalizedInput, projectKeywords.health)) {
         botResponse = "Air pollution can cause a range of health issues, from minor irritation to serious conditions. Short-term exposure can cause eye/nose/throat irritation, headaches, and worsened asthma symptoms. Long-term exposure is linked to reduced lung function, chronic respiratory diseases, heart disease, and even lung cancer. Children, elderly people, and those with pre-existing health conditions are particularly vulnerable. When air quality is poor (AQI 4-5), it's recommended to limit outdoor activities and use air purifiers indoors if available.";
       }
-      // FAQ matching
-      else {
+      // FAQ matching as fallback
+      else if (botResponse === "") {
         // Search FAQ for relevant answers
         let bestMatch = null;
         let highestMatchScore = 0;
@@ -542,7 +617,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose, airQualityData }) => {
   };
 
   return (
-    <Card className="fixed right-6 bottom-20 w-80 md:w-96 h-[500px] shadow-xl border border-border z-[200] flex flex-col">
+    <Card className="fixed right-6 bottom-20 w-80 md:w-96 h-[500px] shadow-xl border border-border z-[200] flex flex-col" data-component="chatbot">
       <div className="bg-primary text-white p-3 flex justify-between items-center rounded-t-lg">
         <h3 className="font-medium">ClearCity Assistant</h3>
         <button 
