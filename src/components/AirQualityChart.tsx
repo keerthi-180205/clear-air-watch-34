@@ -37,7 +37,7 @@ const AirQualityChart: React.FC<AirQualityChartProps> = ({
   formatData.sort((a, b) => a.timestamp - b.timestamp);
   
   return (
-    <Card>
+    <Card className="chart-container">
       <CardHeader>
         <CardTitle>{title}</CardTitle>
       </CardHeader>
@@ -62,9 +62,9 @@ const AirQualityChart: React.FC<AirQualityChartProps> = ({
               <Tooltip 
                 contentStyle={{ 
                   backgroundColor: 'white',
-                  borderRadius: '4px',
+                  borderRadius: '10px',
                   borderColor: '#e5e7eb',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                  boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
                   fontSize: '12px'
                 }}
                 formatter={(value: number) => [value.toFixed(1), '']}
@@ -77,6 +77,7 @@ const AirQualityChart: React.FC<AirQualityChartProps> = ({
                 stroke="#8884d8"
                 strokeWidth={2}
                 activeDot={{ r: 6 }}
+                dot={{ strokeWidth: 2 }}
               />
               <Line
                 type="monotone"
@@ -84,6 +85,7 @@ const AirQualityChart: React.FC<AirQualityChartProps> = ({
                 name="PM10"
                 stroke="#82ca9d"
                 strokeWidth={2}
+                dot={{ strokeWidth: 2 }}
               />
               <Line
                 type="monotone"
@@ -91,6 +93,7 @@ const AirQualityChart: React.FC<AirQualityChartProps> = ({
                 name="O₃"
                 stroke="#ffc658"
                 strokeWidth={2}
+                dot={{ strokeWidth: 2 }}
               />
               <Line
                 type="monotone"
@@ -98,6 +101,7 @@ const AirQualityChart: React.FC<AirQualityChartProps> = ({
                 name="NO₂"
                 stroke="#ff7300"
                 strokeWidth={2}
+                dot={{ strokeWidth: 2 }}
               />
             </LineChart>
           </ResponsiveContainer>

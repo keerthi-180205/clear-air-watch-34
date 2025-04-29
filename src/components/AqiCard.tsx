@@ -14,13 +14,13 @@ const AqiCard = ({ airQuality, cityName = "Selected Location" }: AqiCardProps) =
   const aqiColor = getAqiColor(airQuality.main.aqi);
   
   return (
-    <Card className="w-full">
+    <Card className="w-full aqi-card">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg">{cityName}</CardTitle>
           <Badge 
             style={{ backgroundColor: aqiColor }}
-            className="text-white"
+            className="text-white shadow-sm transition-all duration-300 hover:shadow-md"
           >
             AQI {airQuality.main.aqi}
           </Badge>

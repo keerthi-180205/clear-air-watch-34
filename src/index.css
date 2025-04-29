@@ -33,7 +33,7 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -88,49 +88,125 @@
   * {
     @apply border-border;
   }
-
+  
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground bg-gradient-to-b from-background to-background/95;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    scroll-behavior: smooth;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-medium tracking-tight;
+  }
+  
+  h1 {
+    @apply text-3xl sm:text-4xl;
+  }
+  
+  h2 {
+    @apply text-2xl sm:text-3xl;
   }
 }
 
+@layer components {
+  /* Card and content styling */
+  .card {
+    @apply shadow-card transition-all duration-300 hover:shadow-lg;
+  }
+  
+  /* Button styling */
+  .btn-primary {
+    @apply btn-interactive shadow-button hover:shadow-md;
+  }
+  
+  /* AQI cards styling */
+  .aqi-card {
+    @apply animate-fade-in shadow-md;
+  }
+  
+  /* Air Quality visualization elements */
+  .air-quality-marker {
+    @apply animate-pulse-gentle;
+  }
+  
+  /* Map and interactive elements */
+  .map-container {
+    @apply rounded-xl overflow-hidden shadow-md border-2 border-background;
+  }
+  
+  /* Chart elements */
+  .chart-container {
+    @apply animate-scale-in rounded-xl p-4 bg-white/80 backdrop-blur-sm border border-background/30;
+  }
+  
+  /* Animations for various components */
+  .dashcard {
+    @apply animate-fade-in card-highlight;
+  }
+  
+  /* Leaflet Map Customization */
+  .leaflet-container {
+    @apply rounded-xl overflow-hidden;
+  }
+  
+  .air-quality-popup .leaflet-popup-content-wrapper {
+    @apply rounded-xl overflow-hidden shadow-lg bg-white/95 backdrop-blur-sm border border-gray-100;
+  }
+  
+  .custom-marker {
+    @apply shadow-lg;
+  }
+}
+
+/* Enhance the map with better styling */
 .leaflet-container {
-  width: 100%;
-  height: 100%;
+  font-family: inherit !important;
 }
 
-.marker-cluster-small {
-  background-color: rgba(181, 226, 140, 0.6);
-}
-.marker-cluster-small div {
-  background-color: rgba(110, 204, 57, 0.6);
-}
-
-.marker-cluster-medium {
-  background-color: rgba(241, 211, 87, 0.6);
-}
-.marker-cluster-medium div {
-  background-color: rgba(240, 194, 12, 0.6);
+.leaflet-control-zoom {
+  border-radius: 8px !important;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
 }
 
-.marker-cluster-large {
-  background-color: rgba(253, 156, 115, 0.6);
-}
-.marker-cluster-large div {
-  background-color: rgba(241, 128, 23, 0.6);
+.leaflet-control-zoom a {
+  border-radius: 0 !important;
 }
 
-.air-quality-popup .leaflet-popup-content-wrapper {
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.2);
+/* Add subtle gradient overlays */
+.gradient-overlay-top {
+  background: linear-gradient(to bottom, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 100%);
+  pointer-events: none;
 }
 
-.air-quality-popup .leaflet-popup-content {
-  width: 260px !important;
-  padding: 10px;
+.gradient-overlay-bottom {
+  background: linear-gradient(to top, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 100%);
+  pointer-events: none;
 }
 
-.air-quality-popup .leaflet-popup-tip {
-  background: #fff;
+/* Toast animations */
+.sonner-toast {
+  animation: slide-in-right 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+@keyframes slide-in-right {
+  0% {
+    transform: translateX(30px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Chatbot animations */
+.chat-message-enter {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 300ms, transform 300ms;
+}
+.chat-message-enter-active {
+  opacity: 1;
+  transform: translateY(0);
 }
