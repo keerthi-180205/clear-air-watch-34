@@ -55,15 +55,24 @@ const CitySearch: React.FC<CitySearchProps> = ({ onCitySelect }) => {
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!searchQuery.trim()) return;
+    if (!searchQuery.trim()) {
+      toast.error("Please enter a city name");
+      return;
+    }
     
-    // First check if the city is in our popular cities list
+    // First check if the city is in our popular cities list (case-insensitive)
     const foundCity = popularCities.find(
       city => city.name.toLowerCase() === searchQuery.toLowerCase()
     );
     
     if (foundCity) {
       onCitySelect(foundCity);
+      toast.success(`Showing data for ${foundCity.name}`);
+      return;
+    }
+    
+    if (!apiKey) {
+      toast.error("Please enter your API key first");
       return;
     }
     
@@ -75,6 +84,7 @@ const CitySearch: React.FC<CitySearchProps> = ({ onCitySelect }) => {
       
       if (cityData) {
         onCitySelect(cityData);
+        toast.success(`Showing data for ${cityData.name}`);
       } else {
         toast.error("City not found. Please try another search.");
       }
@@ -84,6 +94,12 @@ const CitySearch: React.FC<CitySearchProps> = ({ onCitySelect }) => {
     } finally {
       setIsSearching(false);
     }
+  };
+  
+  const handlePopularCityClick = (city: City) => {
+    onCitySelect(city);
+    setSearchQuery(city.name); // Update the search input with selected city
+    toast.success(`Showing data for ${city.name}`);
   };
   
   return (
@@ -111,7 +127,7 @@ const CitySearch: React.FC<CitySearchProps> = ({ onCitySelect }) => {
               key={city.name}
               variant="outline"
               size="sm"
-              onClick={() => onCitySelect(city)}
+              onClick={() => handlePopularCityClick(city)}
             >
               {city.name}
             </Button>

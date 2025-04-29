@@ -1,3 +1,4 @@
+
 import { ApiKeyProvider } from "@/contexts/ApiKeyContext";
 import Header from "@/components/Header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -108,19 +109,18 @@ const About = () => {
               Our Team
             </h2>
             
-            <div className="grid md:grid-cols-3 gap-6 mb-10">
+            <div className="grid md:grid-cols-4 gap-6 mb-10">
               <Card>
                 <CardHeader>
                   <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-2">
                     <Users className="h-10 w-10 text-primary" />
                   </div>
-                  <CardTitle className="text-center">Dr. Emma Chen</CardTitle>
-                  <CardDescription className="text-center">Environmental Scientist</CardDescription>
+                  <CardTitle className="text-center">Rishan</CardTitle>
+                  <CardDescription className="text-center">Team Member</CardDescription>
                 </CardHeader>
                 <CardContent className="text-center text-sm">
                   <p>
-                    Emma specializes in urban air pollution monitoring and has conducted
-                    extensive research on the health impacts of air quality in major cities.
+                    Contributing expertise in environmental data analysis and visualization.
                   </p>
                 </CardContent>
               </Card>
@@ -130,13 +130,12 @@ const About = () => {
                   <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-2">
                     <Users className="h-10 w-10 text-primary" />
                   </div>
-                  <CardTitle className="text-center">Alex Rodriguez</CardTitle>
-                  <CardDescription className="text-center">Software Engineer</CardDescription>
+                  <CardTitle className="text-center">Keerthi</CardTitle>
+                  <CardDescription className="text-center">Team Member</CardDescription>
                 </CardHeader>
                 <CardContent className="text-center text-sm">
                   <p>
-                    Alex leads our technical development, focusing on creating 
-                    intuitive tools for visualizing complex environmental data.
+                    Focused on frontend development and user experience design.
                   </p>
                 </CardContent>
               </Card>
@@ -146,13 +145,27 @@ const About = () => {
                   <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-2">
                     <Users className="h-10 w-10 text-primary" />
                   </div>
-                  <CardTitle className="text-center">Sarah Johnson</CardTitle>
-                  <CardDescription className="text-center">Community Engagement</CardDescription>
+                  <CardTitle className="text-center">Sathish</CardTitle>
+                  <CardDescription className="text-center">Team Member</CardDescription>
                 </CardHeader>
                 <CardContent className="text-center text-sm">
                   <p>
-                    Sarah works with local communities and organizations to promote
-                    air quality awareness and sustainable urban development.
+                    Specializing in data integration and API development.
+                  </p>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader>
+                  <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-2">
+                    <Users className="h-10 w-10 text-primary" />
+                  </div>
+                  <CardTitle className="text-center">Chinmay</CardTitle>
+                  <CardDescription className="text-center">Team Member</CardDescription>
+                </CardHeader>
+                <CardContent className="text-center text-sm">
+                  <p>
+                    Working on community engagement features and documentation.
                   </p>
                 </CardContent>
               </Card>

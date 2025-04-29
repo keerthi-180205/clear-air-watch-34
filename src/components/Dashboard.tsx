@@ -12,8 +12,9 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import CitySearch from "./CitySearch";
 import AirQualityChart from "./AirQualityChart";
 import { useApiKey } from "@/contexts/ApiKeyContext";
-import { getForecastAirQuality, getHistoricalAirQuality } from "@/services/airQualityService";
+import { getCurrentAirQuality, getForecastAirQuality, getHistoricalAirQuality } from "@/services/airQualityService";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 const Dashboard = () => {
   const { apiKey } = useApiKey();
@@ -53,9 +54,34 @@ const Dashboard = () => {
     enabled: !!selectedCity && !!apiKey,
   });
 
+  // Get current air quality data when a city is selected
+  useEffect(() => {
+    const fetchCityAirQuality = async () => {
+      if (!selectedCity || !apiKey) return;
+      
+      try {
+        const data = await getCurrentAirQuality(
+          selectedCity.coord.lat,
+          selectedCity.coord.lon,
+          apiKey
+        );
+        
+        if (data && data.list && data.list.length > 0) {
+          setSelectedAirQuality(data.list[0]);
+        }
+      } catch (error) {
+        console.error("Error fetching city air quality:", error);
+        toast.error(`Couldn't fetch air quality data for ${selectedCity.name}`);
+      }
+    };
+    
+    fetchCityAirQuality();
+  }, [selectedCity, apiKey]);
+
   const handleCitySelect = (city: City) => {
     setSelectedCity(city);
     setMapCenter([city.coord.lat, city.coord.lon]);
+    console.log("Selected city:", city.name, "at coordinates:", city.coord.lat, city.coord.lon);
   };
 
   return (
@@ -67,7 +93,8 @@ const Dashboard = () => {
           <h2 className="text-2xl font-bold mb-4">Air Quality Map</h2>
           <div className="flex-1">
             <AirQualityMap 
-              onAirQualityUpdate={setSelectedAirQuality} 
+              onAirQualityUpdate={setSelectedAirQuality}
+              center={mapCenter}
             />
           </div>
         </div>
@@ -92,7 +119,7 @@ const Dashboard = () => {
                   ) : (
                     <div className="flex items-center justify-center h-40">
                       <p className="text-muted-foreground">
-                        Click on the map to view air quality data
+                        Click on the map or search for a city to view air quality data
                       </p>
                     </div>
                   )}
