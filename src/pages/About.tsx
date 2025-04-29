@@ -1,4 +1,3 @@
-
 import { ApiKeyProvider } from "@/contexts/ApiKeyContext";
 import Header from "@/components/Header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -208,7 +207,7 @@ const About = () => {
                 <p className="mb-4">
                   We welcome feedback, questions, and collaboration opportunities. Please reach out to us at:
                 </p>
-                <p className="font-medium">contact@clearcity.com</p>
+                <p className="font-medium">rishanmenezes05@gmail.com</p>
               </CardContent>
             </Card>
           </div>

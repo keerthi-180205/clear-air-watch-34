@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { ApiKeyProvider } from "@/contexts/ApiKeyContext";
 import Header from "@/components/Header";
@@ -10,6 +9,12 @@ import { Users, ThumbsUp, MessageSquare, Lightbulb, MessageCircle } from "lucide
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 
 // Sample community ideas
 const sampleIdeas = [
@@ -99,12 +104,51 @@ const predefinedQuestions = {
   ],
 };
 
+// Comment form schema
+const commentSchema = z.object({
+  author: z.string().min(1, { message: "Name is required" }),
+  content: z.string().min(1, { message: "Comment cannot be empty" })
+});
+
+type Comment = {
+  id: number;
+  author: string;
+  content: string;
+  createdAt: Date;
+};
+
+type Idea = {
+  id: number;
+  title: string;
+  author: string;
+  content: string;
+  likes: number;
+  comments: number;
+  category: string;
+  likedBy: string[]; // Track who has liked this idea
+  commentsList: Comment[]; // List of actual comments
+};
+
 const CommunityIdeas = () => {
-  const [ideas, setIdeas] = useState(sampleIdeas);
+  const [ideas, setIdeas] = useState<Idea[]>(sampleIdeas.map(idea => ({
+    ...idea,
+    likedBy: [],
+    commentsList: []
+  })));
   const [author, setAuthor] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Transportation");
   const [selectedQuestion, setSelectedQuestion] = useState("");
   const [filter, setFilter] = useState("all");
+  const [commentDialogOpen, setCommentDialogOpen] = useState(false);
+  const [currentIdeaId, setCurrentIdeaId] = useState<number | null>(null);
+
+  const commentForm = useForm<z.infer<typeof commentSchema>>({
+    resolver: zodResolver(commentSchema),
+    defaultValues: {
+      author: "",
+      content: ""
+    },
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -120,7 +164,9 @@ const CommunityIdeas = () => {
       content: selectedQuestion,
       likes: 0,
       comments: 0,
-      category: selectedCategory
+      category: selectedCategory,
+      likedBy: [],
+      commentsList: []
     };
     
     setIdeas([newIdea, ...ideas]);
@@ -131,15 +177,67 @@ const CommunityIdeas = () => {
   };
 
   const handleLike = (id: number) => {
-    setIdeas(ideas.map(idea => 
-      idea.id === id ? { ...idea, likes: idea.likes + 1 } : idea
-    ));
+    // Use a unique identifier (for simplicity, we'll use author name)
+    // In a real app, you'd use user ID or similar
+    const currentUser = "current-user"; 
+    
+    setIdeas(ideas.map(idea => {
+      if (idea.id === id) {
+        // Check if this user already liked the idea
+        if (idea.likedBy.includes(currentUser)) {
+          toast("You've already liked this idea!");
+          return idea;
+        }
+        
+        // Add to liked by array and increment like count
+        return { 
+          ...idea, 
+          likes: idea.likes + 1,
+          likedBy: [...idea.likedBy, currentUser]
+        };
+      }
+      return idea;
+    }));
+    
     toast("You liked this idea!");
+  };
+
+  const openCommentDialog = (ideaId: number) => {
+    setCurrentIdeaId(ideaId);
+    setCommentDialogOpen(true);
+  };
+
+  const submitComment = (values: z.infer<typeof commentSchema>) => {
+    if (!currentIdeaId) return;
+    
+    setIdeas(ideas.map(idea => {
+      if (idea.id === currentIdeaId) {
+        const newComment = {
+          id: idea.commentsList.length + 1,
+          author: values.author,
+          content: values.content,
+          createdAt: new Date()
+        };
+        
+        return {
+          ...idea,
+          comments: idea.comments + 1,
+          commentsList: [...idea.commentsList, newComment]
+        };
+      }
+      return idea;
+    }));
+    
+    commentForm.reset();
+    setCommentDialogOpen(false);
+    toast.success("Comment posted successfully!");
   };
   
   const filteredIdeas = filter === "all" 
     ? ideas 
     : ideas.filter(idea => idea.category.toLowerCase() === filter);
+  
+  const currentIdea = currentIdeaId ? ideas.find(idea => idea.id === currentIdeaId) : null;
 
   return (
     <ApiKeyProvider>
@@ -309,7 +407,12 @@ const CommunityIdeas = () => {
                           <ThumbsUp className="h-3 w-3" />
                           <span>{idea.likes} likes</span>
                         </Button>
-                        <Button variant="ghost" size="sm" className="text-xs flex items-center gap-1">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-xs flex items-center gap-1"
+                          onClick={() => openCommentDialog(idea.id)}
+                        >
                           <MessageSquare className="h-3 w-3" />
                           <span>{idea.comments} comments</span>
                         </Button>
@@ -327,6 +430,81 @@ const CommunityIdeas = () => {
             </div>
           </div>
         </main>
+
+        {/* Comments Dialog */}
+        <Dialog open={commentDialogOpen} onOpenChange={setCommentDialogOpen}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>Comments</DialogTitle>
+              <DialogDescription>
+                {currentIdea && `Idea by ${currentIdea.author}: "${currentIdea.title}"`}
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="max-h-[300px] overflow-y-auto space-y-4 my-4">
+              {currentIdea && currentIdea.commentsList.length > 0 ? (
+                currentIdea.commentsList.map(comment => (
+                  <div key={comment.id} className="border-b pb-3">
+                    <div className="flex justify-between">
+                      <p className="font-medium">{comment.author}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {comment.createdAt.toLocaleDateString()}
+                      </p>
+                    </div>
+                    <p className="text-sm mt-1">{comment.content}</p>
+                  </div>
+                ))
+              ) : (
+                <p className="text-center text-muted-foreground py-6">
+                  No comments yet. Be the first to comment!
+                </p>
+              )}
+            </div>
+            
+            <Form {...commentForm}>
+              <form onSubmit={commentForm.handleSubmit(submitComment)} className="space-y-4">
+                <FormField
+                  control={commentForm.control}
+                  name="author"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Your Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter your name" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={commentForm.control}
+                  name="content"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Comment</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="Write your comment here..." 
+                          {...field} 
+                          className="min-h-[80px]" 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <DialogFooter>
+                  <Button type="button" variant="outline" onClick={() => setCommentDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button type="submit">Post Comment</Button>
+                </DialogFooter>
+              </form>
+            </Form>
+          </DialogContent>
+        </Dialog>
       </div>
     </ApiKeyProvider>
   );
