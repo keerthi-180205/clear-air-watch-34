@@ -1,6 +1,6 @@
 
 import React from 'react';
-import ReactDOM from 'react-dom/client';
+import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 
@@ -14,7 +14,7 @@ try {
   }
 
   // Create root using React 18's createRoot API
-  const root = ReactDOM.createRoot(rootElement);
+  const root = createRoot(rootElement);
 
   // Render the app within StrictMode
   root.render(
