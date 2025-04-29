@@ -5,7 +5,7 @@ import { Map, Users, Info, BookOpen } from "lucide-react";
 
 const Header = () => {
   return (
-    <header className="app-header sticky top-0 z-50 bg-[#33C3F0]">
+    <header className="app-header sticky top-0 z-50 bg-[#8B5CF6]">
       <div className="container flex items-center justify-between h-16">
         <Link to="/" className="flex items-center gap-2 transition-all duration-300 hover:scale-105">
           <div className="bg-white/10 p-2 rounded-full">
