@@ -542,7 +542,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose, airQualityData }) => {
   };
 
   return (
-    <Card className="fixed right-6 bottom-20 w-80 md:w-96 h-[500px] shadow-xl border border-border z-[100] flex flex-col">
+    <Card className="fixed right-6 bottom-20 w-80 md:w-96 h-[500px] shadow-xl border border-border z-[200] flex flex-col">
       <div className="bg-primary text-white p-3 flex justify-between items-center rounded-t-lg">
         <h3 className="font-medium">ClearCity Assistant</h3>
         <button 

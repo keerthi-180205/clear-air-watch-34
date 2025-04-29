@@ -252,7 +252,7 @@ const Dashboard = () => {
       {/* Chatbot toggle button - updated z-index */}
       <button 
         onClick={toggleChatbot} 
-        className="fixed right-6 bottom-6 bg-primary text-white p-3 rounded-full shadow-lg hover:bg-primary/80 transition-colors z-[100]"
+        className="fixed right-6 bottom-6 bg-primary text-white p-3 rounded-full shadow-lg hover:bg-primary/80 transition-colors z-[200]"
         aria-label="Open chat"
       >
         {isChatbotOpen ? (
