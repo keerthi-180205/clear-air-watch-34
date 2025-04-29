@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { ApiKeyProvider } from "@/contexts/ApiKeyContext";
 import { useApiKey } from "@/contexts/ApiKeyContext";
@@ -122,13 +121,13 @@ const MainApp = () => {
   const currentCityData = getCityInfo(selectedCity);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#33C3F0] text-white">
+    <div className="min-h-screen flex flex-col bg-background">
       <Header />
       <main className="flex-1 container py-6">
         {isKeyValid ? (
           <div className="space-y-6">
-            <h1 className="text-3xl font-bold">City Air Quality Guide</h1>
-            <p className="text-white/80 max-w-3xl">
+            <h1 className="text-3xl font-bold text-foreground">City Air Quality Guide</h1>
+            <p className="text-muted-foreground max-w-3xl">
               Explore information about air quality in cities around the world. Learn about common pollutants,
               health tips, and environmental regulations specific to each city.
             </p>
@@ -136,20 +135,20 @@ const MainApp = () => {
             <CitySearch onCitySelect={handleCitySelect} />
             
             <div className="grid md:grid-cols-2 gap-6">
-              <Card className="bg-white/10 backdrop-blur-sm border border-white/20">
+              <Card>
                 <CardHeader>
-                  <CardTitle className="text-white">
+                  <CardTitle>
                     {selectedCity ? `${selectedCity} - Common Pollutants` : "Common Urban Pollutants"}
                   </CardTitle>
-                  <CardDescription className="text-white/70">
+                  <CardDescription>
                     Key pollutants affecting air quality in this region
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="text-white/90">
+                <CardContent>
                   <ul className="space-y-2">
                     {currentCityData.commonPollutants.map((pollutant, index) => (
                       <li key={index} className="flex gap-2">
-                        <span className="h-6 w-6 rounded-full bg-orange-500/30 text-white flex items-center justify-center text-xs font-medium">
+                        <span className="h-6 w-6 rounded-full bg-orange-500/30 flex items-center justify-center text-xs font-medium">
                           {index + 1}
                         </span>
                         <span className="text-sm leading-6">{pollutant}</span>
@@ -160,24 +159,24 @@ const MainApp = () => {
               </Card>
               
               <Tabs defaultValue="health">
-                <TabsList className="grid w-full grid-cols-2 bg-white/10">
-                  <TabsTrigger value="health" className="data-[state=active]:bg-white/20 text-white">Health Tips</TabsTrigger>
-                  <TabsTrigger value="regulations" className="data-[state=active]:bg-white/20 text-white">Regulations</TabsTrigger>
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="health">Health Tips</TabsTrigger>
+                  <TabsTrigger value="regulations">Regulations</TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="health" className="mt-4">
-                  <Card className="bg-white/10 backdrop-blur-sm border border-white/20">
+                  <Card>
                     <CardHeader>
-                      <CardTitle className="text-white">Health Recommendations</CardTitle>
-                      <CardDescription className="text-white/70">
+                      <CardTitle>Health Recommendations</CardTitle>
+                      <CardDescription>
                         Tips to protect your health from air pollution
                       </CardDescription>
                     </CardHeader>
-                    <CardContent className="text-white/90">
+                    <CardContent>
                       <ul className="space-y-2">
                         {currentCityData.healthTips.map((tip, index) => (
                           <li key={index} className="flex gap-2">
-                            <span className="h-6 w-6 rounded-full bg-green-500/30 text-white flex items-center justify-center text-xs font-medium">
+                            <span className="h-6 w-6 rounded-full bg-green-500/30 flex items-center justify-center text-xs font-medium">
                               {index + 1}
                             </span>
                             <span className="text-sm leading-6">{tip}</span>
@@ -189,18 +188,18 @@ const MainApp = () => {
                 </TabsContent>
                 
                 <TabsContent value="regulations" className="mt-4">
-                  <Card className="bg-white/10 backdrop-blur-sm border border-white/20">
+                  <Card>
                     <CardHeader>
-                      <CardTitle className="text-white">Environmental Regulations</CardTitle>
-                      <CardDescription className="text-white/70">
+                      <CardTitle>Environmental Regulations</CardTitle>
+                      <CardDescription>
                         Key policies aimed at improving air quality
                       </CardDescription>
                     </CardHeader>
-                    <CardContent className="text-white/90">
+                    <CardContent>
                       <ul className="space-y-2">
                         {currentCityData.regulations.map((regulation, index) => (
                           <li key={index} className="flex gap-2">
-                            <span className="h-6 w-6 rounded-full bg-blue-500/30 text-white flex items-center justify-center text-xs font-medium">
+                            <span className="h-6 w-6 rounded-full bg-blue-500/30 flex items-center justify-center text-xs font-medium">
                               {index + 1}
                             </span>
                             <span className="text-sm leading-6">{regulation}</span>
@@ -213,29 +212,29 @@ const MainApp = () => {
               </Tabs>
             </div>
             
-            <Card className="mt-6 bg-white/10 backdrop-blur-sm border border-white/20">
+            <Card className="mt-6">
               <CardHeader>
-                <CardTitle className="text-white">Understanding Air Quality Metrics</CardTitle>
+                <CardTitle>Understanding Air Quality Metrics</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid md:grid-cols-3 gap-4">
-                  <div className="border border-white/20 rounded-lg p-4 bg-white/5">
-                    <h3 className="font-medium mb-2 text-white">PM2.5 & PM10</h3>
-                    <p className="text-sm text-white/80">
+                  <div className="border rounded-lg p-4 bg-muted/50">
+                    <h3 className="font-medium mb-2">PM2.5 & PM10</h3>
+                    <p className="text-sm text-muted-foreground">
                       Fine particulate matter that can penetrate deep into lungs and even enter the bloodstream.
                       Sources include vehicle emissions, construction, and industrial processes.
                     </p>
                   </div>
-                  <div className="border border-white/20 rounded-lg p-4 bg-white/5">
-                    <h3 className="font-medium mb-2 text-white">Ozone (O₃)</h3>
-                    <p className="text-sm text-white/80">
+                  <div className="border rounded-lg p-4 bg-muted/50">
+                    <h3 className="font-medium mb-2">Ozone (O₃)</h3>
+                    <p className="text-sm text-muted-foreground">
                       Ground-level ozone forms when pollutants react in sunlight. It can trigger asthma attacks
                       and cause other respiratory issues, especially during hot weather.
                     </p>
                   </div>
-                  <div className="border border-white/20 rounded-lg p-4 bg-white/5">
-                    <h3 className="font-medium mb-2 text-white">Nitrogen Dioxide (NO₂)</h3>
-                    <p className="text-sm text-white/80">
+                  <div className="border rounded-lg p-4 bg-muted/50">
+                    <h3 className="font-medium mb-2">Nitrogen Dioxide (NO₂)</h3>
+                    <p className="text-sm text-muted-foreground">
                       Primarily from vehicle exhaust and power plants. It irritates airways and can worsen
                       respiratory diseases, particularly affecting children and asthmatics.
                     </p>
@@ -246,10 +245,10 @@ const MainApp = () => {
           </div>
         ) : (
           <div className="flex items-center justify-center flex-col h-full min-h-[80vh]">
-            <h2 className="text-2xl font-bold mb-8 text-center text-white">
+            <h2 className="text-2xl font-bold mb-8 text-center text-primary">
               Welcome to ClearCity
             </h2>
-            <p className="text-white/80 mb-8 max-w-md text-center">
+            <p className="text-muted-foreground mb-8 max-w-md text-center">
               Please return to the dashboard and enter your OpenWeatherMap API key to access the city guide features.
             </p>
           </div>
