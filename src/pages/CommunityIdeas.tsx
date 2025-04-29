@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { ApiKeyProvider } from "@/contexts/ApiKeyContext";
 import Header from "@/components/Header";
@@ -233,9 +234,16 @@ const CommunityIdeas = () => {
     toast.success("Comment posted successfully!");
   };
   
+  // Sort ideas by engagement (likes + comments) in descending order
+  const sortedIdeas = [...ideas].sort((a, b) => {
+    const engagementA = a.likes + a.comments;
+    const engagementB = b.likes + b.comments;
+    return engagementB - engagementA;
+  });
+  
   const filteredIdeas = filter === "all" 
-    ? ideas 
-    : ideas.filter(idea => idea.category.toLowerCase() === filter);
+    ? sortedIdeas 
+    : sortedIdeas.filter(idea => idea.category.toLowerCase() === filter);
   
   const currentIdea = currentIdeaId ? ideas.find(idea => idea.id === currentIdeaId) : null;
 
@@ -394,6 +402,16 @@ const CommunityIdeas = () => {
                                 {idea.category}
                               </span>
                             </CardDescription>
+                          </div>
+                          <div className="flex items-center text-xs text-muted-foreground">
+                            <span className="bg-green-100 text-green-800 px-2 py-0.5 rounded-full flex items-center">
+                              <ThumbsUp className="h-3 w-3 mr-1" />
+                              {idea.likes}
+                            </span>
+                            <span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full flex items-center ml-2">
+                              <MessageSquare className="h-3 w-3 mr-1" />
+                              {idea.comments}
+                            </span>
                           </div>
                         </div>
                       </CardHeader>
