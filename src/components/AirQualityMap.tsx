@@ -96,7 +96,6 @@ const AirQualityMap = ({ onAirQualityUpdate }: Props) => {
         center={[20, 0]} // Center on the world map
         zoom={2} // Zoom out to show more of the world
         style={{ height: '100%', width: '100%' }}
-        whenReady={() => {}}
       >
         <MapInitializer onMapReady={handleMapReady} />
         <TileLayer

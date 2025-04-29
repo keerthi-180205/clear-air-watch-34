@@ -1,37 +1,52 @@
 
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { useApiKey } from "@/contexts/ApiKeyContext";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import ApiKeyForm from "./ApiKeyForm";
-import { Wind } from "lucide-react";
+import { Map, Users, Info, BookOpen } from "lucide-react";
 
 const Header = () => {
-  const { isKeyValid } = useApiKey();
-
   return (
-    <header className="p-4 border-b bg-white shadow-sm">
-      <div className="container flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Wind className="text-primary h-6 w-6" />
-          <h1 className="text-xl font-bold text-primary">ClearCity</h1>
-        </div>
-        
-        {isKeyValid ? (
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button variant="outline" size="sm">Change API Key</Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Update API Key</DialogTitle>
-                <DialogDescription>
-                  Enter a new OpenWeatherMap API key to continue using ClearCity.
-                </DialogDescription>
-              </DialogHeader>
-              <ApiKeyForm />
-            </DialogContent>
-          </Dialog>
-        ) : null}
+    <header className="bg-white border-b border-gray-200">
+      <div className="container flex items-center justify-between h-16">
+        <Link to="/" className="flex items-center gap-2">
+          <Map className="h-6 w-6 text-primary" />
+          <span className="text-xl font-bold text-primary">ClearCity</span>
+        </Link>
+        <nav>
+          <ul className="flex items-center gap-1">
+            <li>
+              <Link to="/">
+                <Button variant="ghost" size="sm">
+                  <Map className="mr-1 h-4 w-4" />
+                  Dashboard
+                </Button>
+              </Link>
+            </li>
+            <li>
+              <Link to="/city-guide">
+                <Button variant="ghost" size="sm">
+                  <BookOpen className="mr-1 h-4 w-4" />
+                  City Guide
+                </Button>
+              </Link>
+            </li>
+            <li>
+              <Link to="/community-ideas">
+                <Button variant="ghost" size="sm">
+                  <Users className="mr-1 h-4 w-4" />
+                  Community Ideas
+                </Button>
+              </Link>
+            </li>
+            <li>
+              <Link to="/about">
+                <Button variant="ghost" size="sm">
+                  <Info className="mr-1 h-4 w-4" />
+                  About
+                </Button>
+              </Link>
+            </li>
+          </ul>
+        </nav>
       </div>
     </header>
   );
