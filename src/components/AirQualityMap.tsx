@@ -20,6 +20,7 @@ type Props = {
   onAirQualityUpdate?: (data: AirQualityItem | null) => void;
 };
 
+// This component handles map click events and updates air quality data
 const MapClickHandler = ({ onAirQualityUpdate }: Props) => {
   const map = useMap();
   const { apiKey } = useApiKey();
@@ -47,6 +48,17 @@ const MapClickHandler = ({ onAirQualityUpdate }: Props) => {
     };
   }, [map, apiKey, onAirQualityUpdate]);
 
+  return null;
+};
+
+// This component handles the map initialization and stores the map reference
+const MapInitializer = ({ onMapReady }: { onMapReady: (map: L.Map) => void }) => {
+  const map = useMap();
+  
+  useEffect(() => {
+    onMapReady(map);
+  }, [map, onMapReady]);
+  
   return null;
 };
 
@@ -84,8 +96,9 @@ const AirQualityMap = ({ onAirQualityUpdate }: Props) => {
         center={[20, 0]} // Center on the world map
         zoom={2} // Zoom out to show more of the world
         style={{ height: '100%', width: '100%' }}
-        whenReady={(mapEvent) => handleMapReady(mapEvent.target)}
+        whenReady={() => {}}
       >
+        <MapInitializer onMapReady={handleMapReady} />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
