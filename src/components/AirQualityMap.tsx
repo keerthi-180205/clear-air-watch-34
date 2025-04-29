@@ -80,8 +80,8 @@ const AirQualityMap = ({ onAirQualityUpdate }: Props) => {
         center={[40.7128, -74.0060]} // Default to New York
         zoom={3}
         style={{ height: '100%', width: '100%' }}
-        whenCreated={(map) => { 
-          mapRef.current = map;
+        whenReady={(map) => { 
+          mapRef.current = map.target;
         }}
       >
         <TileLayer
