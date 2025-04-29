@@ -14,12 +14,17 @@ const AqiCard = ({ airQuality, cityName = "Selected Location" }: AqiCardProps) =
   const aqiColor = getAqiColor(airQuality.main.aqi);
   
   return (
-    <Card className="w-full aqi-card">
+    <Card className="w-full aqi-card border animate-fade-in">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg">{cityName}</CardTitle>
+          <CardTitle className="text-lg font-bold bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">
+            {cityName}
+          </CardTitle>
           <Badge 
-            style={{ backgroundColor: aqiColor }}
+            style={{ 
+              backgroundColor: aqiColor,
+              boxShadow: `0 2px 8px ${aqiColor}40`
+            }}
             className="text-white shadow-sm transition-all duration-300 hover:shadow-md"
           >
             AQI {airQuality.main.aqi}
@@ -27,21 +32,21 @@ const AqiCard = ({ airQuality, cityName = "Selected Location" }: AqiCardProps) =
         </div>
       </CardHeader>
       <CardContent className="space-y-2 pb-2">
-        <div className="grid grid-cols-2 gap-1 text-sm">
-          <div className="flex flex-col">
-            <span className="text-muted-foreground">PM2.5</span>
+        <div className="grid grid-cols-2 gap-3 text-sm">
+          <div className="flex flex-col bg-gray-50/70 p-2 rounded-lg transition-all duration-300 hover:bg-gray-50 hover:shadow-sm">
+            <span className="text-muted-foreground text-xs">PM2.5</span>
             <span className="font-medium">{airQuality.components.pm2_5.toFixed(1)} μg/m³</span>
           </div>
-          <div className="flex flex-col">
-            <span className="text-muted-foreground">PM10</span>
+          <div className="flex flex-col bg-gray-50/70 p-2 rounded-lg transition-all duration-300 hover:bg-gray-50 hover:shadow-sm">
+            <span className="text-muted-foreground text-xs">PM10</span>
             <span className="font-medium">{airQuality.components.pm10.toFixed(1)} μg/m³</span>
           </div>
-          <div className="flex flex-col">
-            <span className="text-muted-foreground">O₃</span>
+          <div className="flex flex-col bg-gray-50/70 p-2 rounded-lg transition-all duration-300 hover:bg-gray-50 hover:shadow-sm">
+            <span className="text-muted-foreground text-xs">O₃</span>
             <span className="font-medium">{airQuality.components.o3.toFixed(1)} μg/m³</span>
           </div>
-          <div className="flex flex-col">
-            <span className="text-muted-foreground">NO₂</span>
+          <div className="flex flex-col bg-gray-50/70 p-2 rounded-lg transition-all duration-300 hover:bg-gray-50 hover:shadow-sm">
+            <span className="text-muted-foreground text-xs">NO₂</span>
             <span className="font-medium">{airQuality.components.no2.toFixed(1)} μg/m³</span>
           </div>
         </div>

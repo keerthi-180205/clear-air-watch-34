@@ -90,9 +90,11 @@
   }
   
   body {
-    @apply bg-background text-foreground bg-gradient-to-b from-background to-background/95;
+    @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
     scroll-behavior: smooth;
+    background-image: linear-gradient(109.6deg, rgba(223,234,247,1) 11.2%, rgba(244,248,252,1) 91.1%);
+    background-attachment: fixed;
   }
   
   h1, h2, h3, h4, h5, h6 {
@@ -111,7 +113,7 @@
 @layer components {
   /* Card and content styling */
   .card {
-    @apply shadow-card transition-all duration-300 hover:shadow-lg;
+    @apply shadow-card transition-all duration-300 hover:shadow-lg backdrop-blur-sm bg-white/90;
   }
   
   /* Button styling */
@@ -121,7 +123,7 @@
   
   /* AQI cards styling */
   .aqi-card {
-    @apply animate-fade-in shadow-md;
+    @apply animate-fade-in shadow-md backdrop-blur-sm bg-white/95 border-white/20;
   }
   
   /* Air Quality visualization elements */
@@ -131,12 +133,12 @@
   
   /* Map and interactive elements */
   .map-container {
-    @apply rounded-xl overflow-hidden shadow-md border-2 border-background;
+    @apply rounded-xl overflow-hidden shadow-lg border-2 border-background;
   }
   
   /* Chart elements */
   .chart-container {
-    @apply animate-scale-in rounded-xl p-4 bg-white/80 backdrop-blur-sm border border-background/30;
+    @apply animate-scale-in rounded-xl p-4 bg-white/90 backdrop-blur-sm border border-background/30 shadow-lg;
   }
   
   /* Animations for various components */
@@ -146,7 +148,7 @@
   
   /* Leaflet Map Customization */
   .leaflet-container {
-    @apply rounded-xl overflow-hidden;
+    @apply rounded-xl overflow-hidden shadow-lg;
   }
   
   .air-quality-popup .leaflet-popup-content-wrapper {
@@ -155,6 +157,17 @@
   
   .custom-marker {
     @apply shadow-lg;
+  }
+
+  /* Header styling */
+  .app-header {
+    @apply bg-white/80 backdrop-blur-md border-b border-gray-200/40 shadow-sm;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
+  }
+
+  /* Content containers */
+  .content-section {
+    @apply bg-white/80 backdrop-blur-sm rounded-2xl shadow-md border border-white/40;
   }
 }
 
@@ -187,6 +200,7 @@
 /* Toast animations */
 .sonner-toast {
   animation: slide-in-right 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  @apply backdrop-blur-sm bg-white/90 border border-white/20 shadow-lg;
 }
 
 @keyframes slide-in-right {
@@ -210,3 +224,22 @@
   opacity: 1;
   transform: translateY(0);
 }
+
+/* Main content area styling */
+main.container {
+  @apply relative z-10;
+}
+
+/* Add a subtle pattern overlay */
+.pattern-overlay {
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.4;
+}
+
