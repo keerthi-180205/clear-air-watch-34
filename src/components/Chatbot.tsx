@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -409,3 +410,185 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose, airQualityData }) => {
         
         if (currentLevel <= 5) evaluation = "which is within the WHO guideline of 5 μg/m³ - this is excellent air quality";
         else if (currentLevel <= 10) evaluation = "which is above the WHO guideline but still relatively good compared to global averages";
+        else if (currentLevel <= 25) evaluation = "which exceeds the WHO guideline and may cause some health concerns for sensitive individuals";
+        else if (currentLevel <= 50) evaluation = "which significantly exceeds health guidelines and may cause adverse health effects";
+        else evaluation = "which is at a very high level that poses significant health risks";
+        
+        return `The current PM2.5 level for ${airQualityData.cityName || "this location"} is ${currentLevel.toFixed(1)} μg/m³, ${evaluation}. Globally, the WHO recommends an annual mean of 5 μg/m³ or less for PM2.5. Urban areas worldwide frequently exceed this level, with global averages around 40 μg/m³ and much higher in heavily polluted regions.`;
+      }
+    }
+    
+    return null; // No comparison question detected
+  };
+  
+  // Main function to handle user input and generate responses
+  const handleUserInput = (userText: string) => {
+    if (!userText.trim()) return;
+    
+    // Add user message to chat
+    const newUserMessage: Message = {
+      id: Date.now().toString(),
+      type: "user",
+      text: userText
+    };
+    
+    setMessages(prev => [...prev, newUserMessage]);
+    setInput("");
+    
+    // Process the user input and generate a response
+    setTimeout(() => {
+      let botResponse = "";
+      const normalizedInput = userText.toLowerCase();
+      
+      // First, check for specific pollutant questions
+      const pollutantResponse = handlePollutantQuestion(userText);
+      if (pollutantResponse) {
+        botResponse = pollutantResponse;
+      }
+      // Check for chart-related questions
+      else if (!botResponse && containsKeywords(normalizedInput, projectKeywords.charts)) {
+        const chartResponse = handleChartQuestion(userText);
+        if (chartResponse) botResponse = chartResponse;
+      }
+      // Check for city/country comparison questions
+      else if (!botResponse && 
+               (containsKeywords(normalizedInput, projectKeywords.comparison) || 
+                containsKeywords(normalizedInput, projectKeywords.cities))) {
+        const comparisonResponse = handleCityComparisonQuestion(userText);
+        if (comparisonResponse) botResponse = comparisonResponse;
+      }
+      // Handle current air quality questions
+      else if (
+        (normalizedInput.includes("current") || normalizedInput.includes("now") || normalizedInput.includes("today")) && 
+        containsKeywords(normalizedInput, projectKeywords.airQuality)
+      ) {
+        botResponse = getCurrentAirQualityInfo();
+      }
+      // Check for app features/usage questions
+      else if (
+        containsKeywords(normalizedInput, projectKeywords.clearcity) && 
+        (containsKeywords(normalizedInput, projectKeywords.features) || normalizedInput.includes("what") || normalizedInput.includes("how"))
+      ) {
+        botResponse = "ClearCity is a real-time urban pollution tracker that helps you monitor air quality in cities worldwide. You can:\n\n1. Search for specific cities or click on the map to view air quality\n2. View current AQI levels and individual pollutant concentrations\n3. Explore historical data (past 24 hours) and forecasted air quality\n4. Understand the health implications of different pollution levels\n\nTo get started, make sure you've entered your OpenWeatherMap API key, then search for a city or click directly on the map.";
+      }
+      // Handle API-related questions
+      else if (containsKeywords(normalizedInput, projectKeywords.api)) {
+        botResponse = "ClearCity uses the OpenWeatherMap API to fetch air quality data. You need your own API key to use this application. If you don't have one yet, you can sign up for free at the OpenWeatherMap website. Once you have your key, enter it in the form on the welcome screen to start exploring air quality data.";
+      }
+      // Handle health impact questions
+      else if (containsKeywords(normalizedInput, projectKeywords.health)) {
+        botResponse = "Air pollution can cause a range of health issues, from minor irritation to serious conditions. Short-term exposure can cause eye/nose/throat irritation, headaches, and worsened asthma symptoms. Long-term exposure is linked to reduced lung function, chronic respiratory diseases, heart disease, and even lung cancer. Children, elderly people, and those with pre-existing health conditions are particularly vulnerable. When air quality is poor (AQI 4-5), it's recommended to limit outdoor activities and use air purifiers indoors if available.";
+      }
+      // FAQ matching
+      else {
+        // Search FAQ for relevant answers
+        let bestMatch = null;
+        let highestMatchScore = 0;
+        
+        for (const faq of faqData) {
+          // Create a simple matching score based on word overlap
+          const questionWords = faq.question.toLowerCase().split(/\s+/);
+          const inputWords = normalizedInput.split(/\s+/);
+          
+          let matchCount = 0;
+          for (const word of inputWords) {
+            if (word.length > 2 && questionWords.includes(word)) {
+              matchCount++;
+            }
+          }
+          
+          const matchScore = matchCount / inputWords.length;
+          if (matchScore > highestMatchScore && matchScore > 0.3) { // Threshold for relevance
+            highestMatchScore = matchScore;
+            bestMatch = faq;
+          }
+        }
+        
+        if (bestMatch) {
+          botResponse = bestMatch.answer;
+        } else {
+          // Default response if no match is found
+          botResponse = "I don't have specific information about that yet. You can ask me about air quality, pollutants like PM2.5 or ozone, health effects of pollution, or how to use the ClearCity application. If you're looking for current air quality data, try selecting a location on the map or searching for a city.";
+        }
+      }
+      
+      const newBotMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        type: "bot",
+        text: botResponse
+      };
+      
+      setMessages(prev => [...prev, newBotMessage]);
+    }, 600); // Small delay to simulate processing time
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleUserInput(input);
+  };
+
+  return (
+    <Card className="fixed right-6 bottom-20 w-80 md:w-96 h-[500px] shadow-xl border border-border z-50 flex flex-col">
+      <div className="bg-primary text-white p-3 flex justify-between items-center rounded-t-lg">
+        <h3 className="font-medium">ClearCity Assistant</h3>
+        <button 
+          onClick={onClose} 
+          className="text-white hover:text-gray-200"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+      </div>
+      
+      <ScrollArea className="flex-1 p-3">
+        <div className="space-y-4">
+          {messages.map((message) => (
+            <div
+              key={message.id}
+              className={`${
+                message.type === "user"
+                  ? "bg-muted ml-auto text-foreground"
+                  : "bg-primary/10 mr-auto"
+              } rounded-lg p-3 max-w-[85%] break-words`}
+            >
+              {message.text.split('\n').map((text, i) => (
+                <p key={i} className={i > 0 ? "mt-2" : ""}>
+                  {text}
+                </p>
+              ))}
+            </div>
+          ))}
+          <div ref={messagesEndRef} />
+        </div>
+      </ScrollArea>
+      
+      <form onSubmit={handleSubmit} className="p-3 border-t border-border">
+        <div className="flex gap-2">
+          <Input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Ask about air quality..."
+            className="flex-1"
+          />
+          <Button type="submit" size="sm">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="m22 2-7 20-4-9-9-4Z" />
+              <path d="M22 2 11 13" />
+            </svg>
+          </Button>
+        </div>
+      </form>
+    </Card>
+  );
+};
+
+export default Chatbot;
