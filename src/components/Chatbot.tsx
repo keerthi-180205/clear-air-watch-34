@@ -414,4 +414,218 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose, airQualityData }) => {
          normalizedInput.includes("work") && 
          (normalizedInput.includes("clearcity") || normalizedInput.includes("clear city") || normalizedInput.includes("app")))) {
       
-      return "ClearCity works by connecting to the OpenWeatherMap API to fetch real-time air quality data. When you search
+      return "ClearCity works by connecting to the OpenWeatherMap API to fetch real-time air quality data. When you search for a city or click on the map, the app retrieves current air quality readings, historical data for the past 24 hours, and forecasts for that location. The data is displayed through an intuitive interface with color-coded AQI indicators and detailed pollutant information. You can also use the charts to visualize air quality trends and access this chatbot for additional information and guidance.";
+    }
+    
+    return null; // No app question detected
+  };
+
+  // Function to find the best answer from the FAQ data
+  const findBestAnswer = (text: string): string | null => {
+    // First, check for exact matches
+    const exactMatch = findExactMatch(text);
+    if (exactMatch) return exactMatch;
+    
+    // Next, check if the question is about the current air quality
+    if (text.toLowerCase().includes("current") && 
+        containsKeywords(text, ["air quality", "aqi", "pollution"])) {
+      return getCurrentAirQualityInfo();
+    }
+    
+    // Check for specific pollutant questions
+    const pollutantAnswer = handlePollutantQuestion(text);
+    if (pollutantAnswer) return pollutantAnswer;
+    
+    // Check for chart-related questions
+    const chartAnswer = handleChartQuestion(text);
+    if (chartAnswer) return chartAnswer;
+    
+    // Check for app-related questions
+    const appAnswer = handleAppQuestion(text);
+    if (appAnswer) return appAnswer;
+    
+    // If no direct match, try to find the FAQ with the most keyword matches
+    const normalizedInput = text.toLowerCase();
+    
+    // Check if the query is completely unrelated to the project
+    let isAirQualityRelated = false;
+    
+    // Check against project keywords
+    Object.values(projectKeywords).forEach(keywordArray => {
+      if (containsKeywords(normalizedInput, keywordArray)) {
+        isAirQualityRelated = true;
+      }
+    });
+    
+    // Check if the query contains any keywords from the FAQs
+    if (!isAirQualityRelated) {
+      for (const faq of faqData) {
+        const questionWords = faq.question.toLowerCase().split(" ");
+        for (const word of questionWords) {
+          if (word.length > 3 && normalizedInput.includes(word)) {
+            isAirQualityRelated = true;
+            break;
+          }
+        }
+        if (isAirQualityRelated) break;
+      }
+    }
+    
+    if (!isAirQualityRelated) {
+      return "Unable to fetch the data...! I'm designed to answer questions about air quality and the ClearCity application. Please ask me something related to air pollution, AQI, pollutants, or how to use this app.";
+    }
+    
+    // Find the best match based on keyword presence
+    let bestMatchScore = 0;
+    let bestMatchAnswer = null;
+    
+    for (const faq of faqData) {
+      let score = 0;
+      const questionWords = faq.question.toLowerCase().split(" ");
+      
+      // Count how many words from the FAQ question appear in the input
+      for (const word of questionWords) {
+        if (word.length > 3 && normalizedInput.includes(word)) {
+          score++;
+        }
+      }
+      
+      if (score > bestMatchScore) {
+        bestMatchScore = score;
+        bestMatchAnswer = faq.answer;
+      }
+    }
+    
+    // Return the best match if it has a minimum score, otherwise a fallback message
+    return bestMatchScore >= 2
+      ? bestMatchAnswer
+      : "I'm not sure I understand your question. Could you try rephrasing it, or ask me about air quality, pollutants, or how to use the ClearCity app?";
+  };
+
+  const handleSendMessage = () => {
+    if (!input.trim()) return;
+    
+    const userMessage = {
+      id: Date.now().toString(),
+      type: "user",
+      text: input,
+    };
+    
+    setMessages(prev => [...prev, userMessage]);
+    setInput("");
+    setShowSuggestions(false);
+    
+    // Find the best answer from FAQ data
+    const answer = findBestAnswer(input);
+    
+    setTimeout(() => {
+      const botMessage = {
+        id: (Date.now() + 1).toString(),
+        type: "bot",
+        text: answer || "I don't have information about that yet. Would you like to know something else about air quality or the ClearCity app?",
+      };
+      setMessages(prev => [...prev, botMessage]);
+    }, 600); // Small delay for better UX
+  };
+
+  const handlePromptClick = (prompt: string) => {
+    setInput(prompt);
+    setShowSuggestions(false);
+    
+    const userMessage = {
+      id: Date.now().toString(),
+      type: "user",
+      text: prompt,
+    };
+    
+    setMessages(prev => [...prev, userMessage]);
+    
+    // Find the answer from FAQ data
+    const answer = findBestAnswer(prompt);
+    
+    setTimeout(() => {
+      const botMessage = {
+        id: (Date.now() + 1).toString(),
+        type: "bot",
+        text: answer || "I don't have information about that yet. Would you like to know something else about air quality or the ClearCity app?",
+      };
+      setMessages(prev => [...prev, botMessage]);
+    }, 600);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleSendMessage();
+    }
+  };
+
+  return (
+    <Card className="w-[350px] h-[500px] fixed bottom-20 right-6 overflow-hidden shadow-lg z-[1000]">
+      {/* Header */}
+      <div className="bg-primary text-white p-3 flex justify-between items-center">
+        <h3 className="font-medium">ClearCity Assistant</h3>
+        <button 
+          onClick={onClose} 
+          className="rounded-full p-1 hover:bg-primary-dark transition-colors"
+          aria-label="Close chatbot"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+      </div>
+      
+      {/* Messages */}
+      <ScrollArea className="h-[380px] p-3">
+        <div className="space-y-4 pb-2">
+          {messages.map((message) => (
+            <div 
+              key={message.id} 
+              className={`flex ${message.type === "user" ? "justify-end" : "justify-start"}`}
+            >
+              <div 
+                className={`rounded-lg px-4 py-2 max-w-[85%] ${
+                  message.type === "user" 
+                    ? "bg-primary text-white" 
+                    : "bg-muted"
+                }`}
+              >
+                <p className="whitespace-pre-wrap">{message.text}</p>
+              </div>
+            </div>
+          ))}
+          {/* Suggestions */}
+          {showSuggestions && (
+            <div className="flex flex-wrap gap-2 mt-4">
+              {suggestedPrompts.map((prompt, i) => (
+                <button
+                  key={i}
+                  onClick={() => handlePromptClick(prompt)}
+                  className="bg-muted rounded-full px-3 py-1 text-xs hover:bg-muted/80 transition-colors"
+                >
+                  {prompt}
+                </button>
+              ))}
+            </div>
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+      </ScrollArea>
+      
+      {/* Input */}
+      <div className="border-t p-3 flex gap-2">
+        <Input 
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="Ask about air quality..."
+          className="flex-1"
+        />
+        <Button size="sm" onClick={handleSendMessage}>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-11 11"/><path d="m22 2-7 20-4-9-9-4 20-7z"/></svg>
+          <span className="sr-only">Send</span>
+        </Button>
+      </div>
+    </Card>
+  );
+};
+
+export default Chatbot;
