@@ -458,29 +458,26 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose, airQualityData }) => {
         botResponse = pollutantResponse;
       }
       // Check for chart-related questions
-      else if (!botResponse && containsKeywords(normalizedInput, projectKeywords.charts)) {
+      else if (containsKeywords(normalizedInput, projectKeywords.charts)) {
         const chartResponse = handleChartQuestion(userText);
         if (chartResponse) botResponse = chartResponse;
       }
       // Check for city/country comparison questions
-      else if (!botResponse && 
-               (containsKeywords(normalizedInput, projectKeywords.comparison) || 
-                containsKeywords(normalizedInput, projectKeywords.cities))) {
+      else if (containsKeywords(normalizedInput, projectKeywords.comparison) || 
+                containsKeywords(normalizedInput, projectKeywords.cities)) {
         const comparisonResponse = handleCityComparisonQuestion(userText);
         if (comparisonResponse) botResponse = comparisonResponse;
       }
       // Handle current air quality questions
-      else if (
-        (normalizedInput.includes("current") || normalizedInput.includes("now") || normalizedInput.includes("today")) && 
-        containsKeywords(normalizedInput, projectKeywords.airQuality)
-      ) {
+      else if ((normalizedInput.includes("current") || normalizedInput.includes("now") || normalizedInput.includes("today")) && 
+                containsKeywords(normalizedInput, projectKeywords.airQuality)) {
         botResponse = getCurrentAirQualityInfo();
       }
       // Check for app features/usage questions
-      else if (
-        containsKeywords(normalizedInput, projectKeywords.clearcity) && 
-        (containsKeywords(normalizedInput, projectKeywords.features) || normalizedInput.includes("what") || normalizedInput.includes("how"))
-      ) {
+      else if (containsKeywords(normalizedInput, projectKeywords.clearcity) && 
+                (containsKeywords(normalizedInput, projectKeywords.features) || 
+                normalizedInput.includes("what") || 
+                normalizedInput.includes("how"))) {
         botResponse = "ClearCity is a real-time urban pollution tracker that helps you monitor air quality in cities worldwide. You can:\n\n1. Search for specific cities or click on the map to view air quality\n2. View current AQI levels and individual pollutant concentrations\n3. Explore historical data (past 24 hours) and forecasted air quality\n4. Understand the health implications of different pollution levels\n\nTo get started, make sure you've entered your OpenWeatherMap API key, then search for a city or click directly on the map.";
       }
       // Handle API-related questions
@@ -524,6 +521,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose, airQualityData }) => {
         }
       }
       
+      // Add the bot response to messages
       const newBotMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: "bot",
