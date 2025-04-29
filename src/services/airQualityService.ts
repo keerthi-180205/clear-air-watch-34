@@ -74,3 +74,35 @@ export const getHistoricalAirQuality = async (
     return null;
   }
 };
+
+// Get city information based on name
+export const getCityByName = async (
+  cityName: string,
+  apiKey: string
+): Promise<{ name: string; coord: { lat: number; lon: number } } | null> => {
+  try {
+    if (!apiKey) return null;
+    const response = await fetch(
+      `https://api.openweathermap.org/geo/1.0/direct?q=${cityName}&limit=1&appid=${apiKey}`
+    );
+
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    if (data && data.length > 0) {
+      return {
+        name: data[0].name,
+        coord: {
+          lat: data[0].lat,
+          lon: data[0].lon,
+        },
+      };
+    }
+    return null;
+  } catch (error) {
+    console.error("Failed to fetch city data:", error);
+    return null;
+  }
+};
