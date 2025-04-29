@@ -5,9 +5,11 @@ import Header from "@/components/Header";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Users, ThumbsUp, MessageSquare, Lightbulb } from "lucide-react";
+import { Users, ThumbsUp, MessageSquare, Lightbulb, MessageCircle } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 
 // Sample community ideas
 const sampleIdeas = [
@@ -58,36 +60,72 @@ const sampleIdeas = [
   },
 ];
 
+// Pre-defined questions by category
+const predefinedQuestions = {
+  "Transportation": [
+    "Should we promote electric vehicles through tax incentives?",
+    "Would car-free zones in city centers improve air quality?",
+    "Should public transportation be free to reduce car usage?",
+    "Should we implement congestion pricing in high-traffic areas?",
+    "Would bike-sharing programs help reduce vehicle emissions?",
+  ],
+  "Green Spaces": [
+    "Should we convert unused urban lots into community gardens?",
+    "Would rooftop gardens on public buildings improve air quality?",
+    "Should we require green spaces in new development projects?",
+    "Would urban forests along highways help filter vehicle emissions?",
+    "Should we protect existing green spaces from development?",
+  ],
+  "Technology": [
+    "Would a network of air quality sensors help identify pollution hotspots?",
+    "Should we develop a mobile app for reporting pollution incidents?",
+    "Would smart traffic management systems reduce vehicle emissions?",
+    "Should we invest in air purification systems for public spaces?",
+    "Would real-time pollution alerts help people make healthier choices?",
+  ],
+  "Policy": [
+    "Should industries near residential areas face stricter emission controls?",
+    "Would tax breaks for companies with low carbon footprints be effective?",
+    "Should we ban high-emission vehicles from certain areas?",
+    "Would international cooperation on air quality standards help?",
+    "Should polluting companies pay for public health consequences?",
+  ],
+  "Health": [
+    "Should schools in high-pollution areas install air filtration systems?",
+    "Would public health campaigns about air pollution impact behaviors?",
+    "Should we subsidize air purifiers for vulnerable populations?",
+    "Would more research on pollution's health effects lead to better policies?",
+    "Should healthcare providers screen for pollution-related conditions?",
+  ],
+};
+
 const CommunityIdeas = () => {
   const [ideas, setIdeas] = useState(sampleIdeas);
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
   const [author, setAuthor] = useState("");
-  const [category, setCategory] = useState("General");
+  const [selectedCategory, setSelectedCategory] = useState("Transportation");
+  const [selectedQuestion, setSelectedQuestion] = useState("");
   const [filter, setFilter] = useState("all");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title || !content || !author) {
-      toast.error("Please fill in all required fields");
+    if (!selectedQuestion || !author) {
+      toast.error("Please select a question and enter your name");
       return;
     }
     
     const newIdea = {
       id: ideas.length + 1,
-      title,
+      title: selectedQuestion,
       author,
-      content,
+      content: selectedQuestion,
       likes: 0,
       comments: 0,
-      category: category || "General"
+      category: selectedCategory
     };
     
     setIdeas([newIdea, ...ideas]);
-    setTitle("");
-    setContent("");
     setAuthor("");
-    setCategory("General");
+    setSelectedQuestion("");
     
     toast.success("Your idea has been shared with the community!");
   };
@@ -114,26 +152,15 @@ const CommunityIdeas = () => {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Lightbulb className="h-5 w-5 text-yellow-500" />
-                    Share Your Idea
+                    <MessageCircle className="h-5 w-5 text-primary" />
+                    Share Your Opinion
                   </CardTitle>
                   <CardDescription>
-                    Contribute your suggestions for improving air quality in urban areas
+                    Select a question and share your thoughts with the community
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="space-y-2">
-                      <label htmlFor="title" className="text-sm font-medium">Title</label>
-                      <Input
-                        id="title"
-                        value={title}
-                        onChange={e => setTitle(e.target.value)}
-                        placeholder="Give your idea a catchy title"
-                        required
-                      />
-                    </div>
-                    
+                  <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="space-y-2">
                       <label htmlFor="author" className="text-sm font-medium">Your Name/Username</label>
                       <Input
@@ -146,37 +173,45 @@ const CommunityIdeas = () => {
                     </div>
                     
                     <div className="space-y-2">
-                      <label htmlFor="category" className="text-sm font-medium">Category</label>
-                      <select
-                        id="category"
-                        value={category}
-                        onChange={e => setCategory(e.target.value)}
-                        className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
+                      <label className="text-sm font-medium">Select a Category</label>
+                      <Tabs 
+                        value={selectedCategory} 
+                        onValueChange={setSelectedCategory}
+                        className="w-full"
                       >
-                        <option value="General">General</option>
-                        <option value="Transportation">Transportation</option>
-                        <option value="Green Spaces">Green Spaces</option>
-                        <option value="Technology">Technology</option>
-                        <option value="Policy">Policy</option>
-                        <option value="Health">Health</option>
-                        <option value="Education">Education</option>
-                      </select>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <label htmlFor="content" className="text-sm font-medium">Your Idea</label>
-                      <Textarea
-                        id="content"
-                        value={content}
-                        onChange={e => setContent(e.target.value)}
-                        placeholder="Describe your idea for improving urban air quality..."
-                        rows={5}
-                        required
-                      />
+                        <TabsList className="grid grid-cols-5 w-full">
+                          <TabsTrigger value="Transportation" className="text-xs">Transport</TabsTrigger>
+                          <TabsTrigger value="Green Spaces" className="text-xs">Green</TabsTrigger>
+                          <TabsTrigger value="Technology" className="text-xs">Tech</TabsTrigger>
+                          <TabsTrigger value="Policy" className="text-xs">Policy</TabsTrigger>
+                          <TabsTrigger value="Health" className="text-xs">Health</TabsTrigger>
+                        </TabsList>
+                        
+                        {Object.entries(predefinedQuestions).map(([category, questions]) => (
+                          <TabsContent key={category} value={category} className="pt-4">
+                            <RadioGroup
+                              value={selectedQuestion}
+                              onValueChange={setSelectedQuestion}
+                            >
+                              {questions.map((question, idx) => (
+                                <div key={idx} className="flex items-start space-x-2 mb-3">
+                                  <RadioGroupItem value={question} id={`question-${category}-${idx}`} />
+                                  <Label 
+                                    htmlFor={`question-${category}-${idx}`}
+                                    className="text-sm font-normal cursor-pointer"
+                                  >
+                                    {question}
+                                  </Label>
+                                </div>
+                              ))}
+                            </RadioGroup>
+                          </TabsContent>
+                        ))}
+                      </Tabs>
                     </div>
                     
                     <Button type="submit" className="w-full">
-                      Share Idea
+                      Share Opinion
                     </Button>
                   </form>
                 </CardContent>
@@ -264,9 +299,6 @@ const CommunityIdeas = () => {
                           </div>
                         </div>
                       </CardHeader>
-                      <CardContent className="pb-2">
-                        <p className="text-sm">{idea.content}</p>
-                      </CardContent>
                       <CardFooter className="flex justify-between border-t pt-2 text-xs text-muted-foreground">
                         <Button 
                           variant="ghost" 

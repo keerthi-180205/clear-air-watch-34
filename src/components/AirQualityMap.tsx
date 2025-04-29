@@ -46,7 +46,7 @@ const fetchLocationName = async (lat: number, lng: number): Promise<string> => {
 };
 
 // This component handles map click events and updates air quality data
-const MapClickHandler = ({ onAirQualityUpdate }: Props) => {
+const MapClickHandler = ({ onAirQualityUpdate }: { onAirQualityUpdate?: Props['onAirQualityUpdate'] }) => {
   const map = useMap();
   const { apiKey } = useApiKey();
   
@@ -107,30 +107,6 @@ const AirQualityMap = ({ onAirQualityUpdate, center = [20, 0] }: Props) => {
   } | null>(null);
   
   const { apiKey } = useApiKey();
-  const mapRef = useRef<L.Map | null>(null);
-
-  const handleMapClick = async (e: L.LeafletMouseEvent) => {
-    const { lat, lng } = e.latlng;
-    
-    try {
-      if (!apiKey) {
-        toast.error("Please enter your API key first");
-        return;
-      }
-      
-      // Get location name
-      const locationName = await fetchLocationName(lat, lng);
-      
-      const data = await getCurrentAirQuality(lat, lng, apiKey);
-      if (data && data.list && data.list.length > 0) {
-        setSelectedLocation({ lat, lng, aqiData: data.list[0], name: locationName });
-        onAirQualityUpdate && onAirQualityUpdate(data.list[0], locationName);
-      }
-    } catch (error) {
-      console.error('Error fetching air quality data:', error);
-      toast.error("Couldn't fetch air quality data for this location");
-    }
-  };
 
   return (
     <div className="h-full w-full rounded-lg overflow-hidden border border-border shadow-sm">
@@ -155,6 +131,7 @@ const AirQualityMap = ({ onAirQualityUpdate, center = [20, 0] }: Props) => {
             onAirQualityUpdate && onAirQualityUpdate(data, locationName);
           }
         }} />
+        
         <MapCenterUpdater center={center} />
         
         {selectedLocation && selectedLocation.aqiData && (
