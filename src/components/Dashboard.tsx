@@ -81,7 +81,7 @@ const Dashboard = () => {
         );
         
         if (data && data.list && data.list.length > 0) {
-          // Make sure the air quality item has the coordinates
+          // Add coordinates to the air quality item from the parent data
           data.list[0].coord = {
             lat: selectedCity.coord.lat,
             lon: selectedCity.coord.lon
@@ -95,7 +95,7 @@ const Dashboard = () => {
         }
       } catch (error) {
         console.error("Error fetching city air quality:", error);
-        toast.error(`Couldn't fetch air quality data for ${selectedCity.name}`);
+        toast.error("Couldn't fetch air quality data for ${selectedCity.name}");
       }
     };
     
@@ -136,6 +136,15 @@ const Dashboard = () => {
 
   const shouldShowChartSection = mapLocation || selectedCity;
 
+  // Create an object with current air quality data to share with chatbot
+  const airQualityContextData = {
+    currentAqi: selectedAirQuality?.main.aqi,
+    cityName: selectedLocationName,
+    pollutants: selectedAirQuality?.components,
+    hasHistoricalData: historicalData?.list && historicalData.list.length > 0,
+    hasForecastData: forecastData?.list && forecastData.list.length > 0
+  };
+
   return (
     <div className="space-y-6">
       <CitySearch onCitySelect={handleCitySelect} />
@@ -143,7 +152,7 @@ const Dashboard = () => {
       <div className="grid md:grid-cols-4 gap-6 w-full h-[calc(100vh-240px)]">
         <div className="md:col-span-3 flex flex-col">
           <h2 className="text-2xl font-bold mb-4">Air Quality Map</h2>
-          <div className="flex-1">
+          <div className="flex-1 relative">
             <AirQualityMap 
               onAirQualityUpdate={handleMapLocationSelect}
               center={mapCenter}
@@ -243,7 +252,7 @@ const Dashboard = () => {
       {/* Chatbot toggle button */}
       <button 
         onClick={toggleChatbot} 
-        className="fixed right-6 bottom-6 bg-primary text-white p-3 rounded-full shadow-lg hover:bg-primary/80 transition-colors z-50"
+        className="fixed right-6 bottom-6 bg-primary text-white p-3 rounded-full shadow-lg hover:bg-primary/80 transition-colors z-40"
         aria-label="Open chat"
       >
         {isChatbotOpen ? (
@@ -254,7 +263,12 @@ const Dashboard = () => {
       </button>
       
       {/* Chatbot component */}
-      {isChatbotOpen && <Chatbot onClose={() => setIsChatbotOpen(false)} />}
+      {isChatbotOpen && (
+        <Chatbot 
+          onClose={() => setIsChatbotOpen(false)} 
+          airQualityData={airQualityContextData}
+        />
+      )}
     </div>
   );
 };

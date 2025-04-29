@@ -14,6 +14,21 @@ interface Message {
 
 interface ChatbotProps {
   onClose: () => void;
+  airQualityData?: {
+    currentAqi?: number;
+    cityName?: string;
+    pollutants?: {
+      co?: number;
+      no2?: number;
+      o3?: number;
+      pm2_5?: number;
+      pm10?: number;
+      so2?: number;
+      nh3?: number;
+    };
+    hasHistoricalData?: boolean;
+    hasForecastData?: boolean;
+  };
 }
 
 // FAQ data for the chatbot - expanded with more project-specific information
@@ -79,7 +94,7 @@ const projectKeywords = {
   time: ["time", "history", "historical", "past", "previous", "forecast", "future", "prediction", "trend", "trends", "24 hours"]
 };
 
-const Chatbot: React.FC<ChatbotProps> = ({ onClose }) => {
+const Chatbot: React.FC<ChatbotProps> = ({ onClose, airQualityData }) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "initial",
@@ -104,9 +119,57 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose }) => {
     return keywords.some(keyword => normalizedText.includes(keyword.toLowerCase()));
   };
 
+  // Function to get context-aware information about current air quality
+  const getCurrentAirQualityInfo = (): string => {
+    if (!airQualityData || airQualityData.currentAqi === undefined) {
+      return "No air quality data is currently selected. Try clicking on the map or searching for a city to view air quality information.";
+    }
+
+    const aqiLevel = airQualityData.currentAqi !== undefined ? 
+      AQI_LEVELS[airQualityData.currentAqi - 1] : null;
+    
+    let response = `Current air quality for ${airQualityData.cityName || "the selected location"} is `;
+    
+    if (aqiLevel) {
+      response += `AQI ${airQualityData.currentAqi} (${aqiLevel.level}). ${aqiLevel.description}`;
+      
+      // Add pollutant info if available
+      if (airQualityData.pollutants) {
+        response += "\n\nKey pollutant levels:";
+        if (airQualityData.pollutants.pm2_5 !== undefined) 
+          response += `\nPM2.5: ${airQualityData.pollutants.pm2_5.toFixed(1)} μg/m³`;
+        if (airQualityData.pollutants.pm10 !== undefined) 
+          response += `\nPM10: ${airQualityData.pollutants.pm10.toFixed(1)} μg/m³`;
+        if (airQualityData.pollutants.o3 !== undefined) 
+          response += `\nO₃: ${airQualityData.pollutants.o3.toFixed(1)} μg/m³`;
+        if (airQualityData.pollutants.no2 !== undefined) 
+          response += `\nNO₂: ${airQualityData.pollutants.no2.toFixed(1)} μg/m³`;
+      }
+      
+      // Add historical/forecast data availability info
+      if (airQualityData.hasHistoricalData || airQualityData.hasForecastData) {
+        response += "\n\nAdditional data available:";
+        if (airQualityData.hasHistoricalData) response += "\n- Historical data for the past 24 hours";
+        if (airQualityData.hasForecastData) response += "\n- Air quality forecast";
+      }
+    } else {
+      response += "not available.";
+    }
+    
+    return response;
+  };
+
   // Improved response generation with better context understanding
   const generateResponse = (userInput: string): string => {
     const normalizedInput = userInput.toLowerCase();
+    
+    // Check for current air quality data request
+    if (normalizedInput.includes("current") && 
+        (normalizedInput.includes("air quality") || 
+         normalizedInput.includes("aqi") || 
+         normalizedInput.includes("pollution"))) {
+      return getCurrentAirQualityInfo();
+    }
     
     // Check for irrelevant questions or non-project content
     const isProjectRelated = Object.values(projectKeywords).some(category => 
