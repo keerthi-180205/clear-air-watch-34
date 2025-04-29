@@ -417,12 +417,76 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose, airQualityData }) => {
       return "ClearCity works by connecting to the OpenWeatherMap API to fetch real-time air quality data. When you search for a city or click on the map, the app retrieves current air quality readings, historical data for the past 24 hours, and forecasts for that location. The data is displayed through an intuitive interface with color-coded AQI indicators and detailed pollutant information. You can also use the charts to visualize air quality trends and access this chatbot for additional information and guidance.";
     }
     
+    // Handle questions about the dashboard
+    if (normalizedInput.includes("dashboard") || 
+        (normalizedInput.includes("main") && normalizedInput.includes("screen")) ||
+        (normalizedInput.includes("home") && normalizedInput.includes("page"))) {
+      
+      return "The ClearCity dashboard displays comprehensive air quality information. At the top, you'll find a search bar to look up cities. Below that is an interactive world map where you can click on any location to view its air quality data. The main panel shows the current Air Quality Index (AQI) with a color-coded indicator, detailed pollutant levels, and charts displaying historical and forecast data. You can also access this chatbot by clicking the chat icon in the bottom right corner for more information.";
+    }
+    
+    // Handle questions about API key
+    if (containsKeywords(normalizedInput, ["api", "key", "token"]) && 
+        containsKeywords(normalizedInput, ["enter", "get", "need", "where", "how", "use"])) {
+      
+      return "To use ClearCity, you need an OpenWeatherMap API key. You can get one by creating a free account at openweathermap.org. Once you have your key, enter it in the form on the welcome screen. The app will save your key securely in your browser's local storage, so you won't need to enter it again unless you clear your browser data or use a different device.";
+    }
+    
     return null; // No app question detected
+  };
+
+  // Enhanced function to check if the query is related to the project
+  const isProjectRelatedQuery = (text: string): boolean => {
+    const normalizedInput = text.toLowerCase();
+    
+    // Check against all project keywords
+    for (const keywordCategory of Object.values(projectKeywords)) {
+      if (containsKeywords(normalizedInput, keywordCategory)) {
+        return true;
+      }
+    }
+    
+    // Check for direct mentions of ClearCity features
+    if (normalizedInput.includes("clearcity") || 
+        normalizedInput.includes("clear city") ||
+        normalizedInput.includes("this app") ||
+        normalizedInput.includes("this application") ||
+        normalizedInput.includes("this website") ||
+        normalizedInput.includes("air quality") ||
+        normalizedInput.includes("pollution") ||
+        normalizedInput.includes("dashboard") ||
+        normalizedInput.includes("map")) {
+      return true;
+    }
+    
+    // Check for matches with FAQ questions (simplified check)
+    for (const faq of faqData) {
+      const questionWords = faq.question.toLowerCase().split(" ");
+      let matchedWords = 0;
+      
+      for (const word of questionWords) {
+        if (word.length > 3 && normalizedInput.includes(word)) {
+          matchedWords++;
+        }
+      }
+      
+      // If at least 2 significant words match, consider it related
+      if (matchedWords >= 2) {
+        return true;
+      }
+    }
+    
+    return false;
   };
 
   // Function to find the best answer from the FAQ data
   const findBestAnswer = (text: string): string | null => {
-    // First, check for exact matches
+    // First, check if the query is project-related
+    if (!isProjectRelatedQuery(text)) {
+      return "Unable to access data";
+    }
+    
+    // Check for exact matches
     const exactMatch = findExactMatch(text);
     if (exactMatch) return exactMatch;
     
@@ -446,34 +510,6 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose, airQualityData }) => {
     
     // If no direct match, try to find the FAQ with the most keyword matches
     const normalizedInput = text.toLowerCase();
-    
-    // Check if the query is completely unrelated to the project
-    let isAirQualityRelated = false;
-    
-    // Check against project keywords
-    Object.values(projectKeywords).forEach(keywordArray => {
-      if (containsKeywords(normalizedInput, keywordArray)) {
-        isAirQualityRelated = true;
-      }
-    });
-    
-    // Check if the query contains any keywords from the FAQs
-    if (!isAirQualityRelated) {
-      for (const faq of faqData) {
-        const questionWords = faq.question.toLowerCase().split(" ");
-        for (const word of questionWords) {
-          if (word.length > 3 && normalizedInput.includes(word)) {
-            isAirQualityRelated = true;
-            break;
-          }
-        }
-        if (isAirQualityRelated) break;
-      }
-    }
-    
-    if (!isAirQualityRelated) {
-      return "Unable to fetch the data...! I'm designed to answer questions about air quality and the ClearCity application. Please ask me something related to air pollution, AQI, pollutants, or how to use this app.";
-    }
     
     // Find the best match based on keyword presence
     let bestMatchScore = 0;
