@@ -1,7 +1,7 @@
 import { ApiKeyProvider } from "@/contexts/ApiKeyContext";
 import Header from "@/components/Header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Info, Users, Map, BookOpen, MessageSquare, ChartLineUp } from "lucide-react";
+import { Info, Users, Map, BookOpen, MessageSquare, ChartLine } from "lucide-react";
 
 const About = () => {
   return (
@@ -60,7 +60,7 @@ const About = () => {
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="flex items-center gap-2">
-                    <ChartLineUp className="h-5 w-5 text-primary" />
+                    <ChartLine className="h-5 w-5 text-primary" />
                     Data Visualization
                   </CardTitle>
                 </CardHeader>
