@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -183,7 +182,18 @@ const faqData = [
   }
 ];
 
-// Expanded project keywords to help with matching user queries
+// Suggested prompts that users can click on
+const suggestedPrompts = [
+  "What is AQI?",
+  "How do I read the charts?",
+  "Which cities have the worst pollution?",
+  "What are safe levels for PM2.5?",
+  "How does weather affect air quality?",
+  "What health risks come from air pollution?",
+  "How does the ClearCity app work?"
+];
+
+// Project-specific keywords for improved query matching
 const projectKeywords = {
   clearcity: ["clearcity", "clear city", "this app", "this application", "the app", "app", "website", "site", "dashboard", "platform"],
   features: ["features", "capabilities", "functions", "functionality", "what can", "able to", "how to use", "usage", "instructions"],
@@ -201,17 +211,6 @@ const projectKeywords = {
   causes: ["cause", "causes", "source", "sources", "emission", "emissions", "produce", "producing", "create", "creating", "contribute", "contributing", "factor", "factors", "reason", "reasons", "origin", "origins"],
   solutions: ["solution", "solutions", "reduce", "reducing", "mitigate", "mitigating", "improve", "improving", "clean", "cleaning", "policy", "policies", "regulation", "regulations", "action", "actions", "initiative", "initiatives", "protect", "protecting", "prevention", "prevent"]
 };
-
-// Suggested prompts that users can click on
-const suggestedPrompts = [
-  "What is AQI?",
-  "How do I read the charts?",
-  "Which cities have the worst pollution?",
-  "What are safe levels for PM2.5?",
-  "How does weather affect air quality?",
-  "What health risks come from air pollution?",
-  "How does the ClearCity app work?"
-];
 
 const Chatbot: React.FC<ChatbotProps> = ({ onClose, airQualityData }) => {
   const [messages, setMessages] = useState<Message[]>([
@@ -235,7 +234,6 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose, airQualityData }) => {
 
   // Function to find exact matches in the FAQ data
   const findExactMatch = (text: string): string | null => {
-    // First try to find an exact match
     const normalizedInput = text.toLowerCase().trim();
     
     for (const faq of faqData) {
@@ -306,7 +304,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose, airQualityData }) => {
       }
     }
     
-    // Handle PM10 questions
+    // Handle other pollutants
     if (normalizedInput.includes("pm10") || normalizedInput.includes("pm 10")) {
       if (airQualityData?.pollutants?.pm10 !== undefined) {
         return `The current PM10 level for ${airQualityData.cityName || "this location"} is ${airQualityData.pollutants.pm10.toFixed(1)} μg/m³. PM10 refers to coarse particulate matter smaller than 10 micrometers that can enter the respiratory system. The World Health Organization recommends levels below 15 μg/m³ for annual exposure.`;
@@ -315,7 +313,6 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose, airQualityData }) => {
       }
     }
     
-    // Handle Ozone (O3) questions
     if (normalizedInput.includes("o3") || normalizedInput.includes("ozone")) {
       if (airQualityData?.pollutants?.o3 !== undefined) {
         return `The current Ozone (O₃) level for ${airQualityData.cityName || "this location"} is ${airQualityData.pollutants.o3.toFixed(1)} μg/m³. Ground-level ozone is a harmful air pollutant formed when pollutants from cars, power plants, and other sources react in the presence of sunlight. It can irritate the respiratory system and worsen conditions like asthma.`;
@@ -324,7 +321,6 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose, airQualityData }) => {
       }
     }
     
-    // Handle Nitrogen Dioxide (NO2) questions
     if (normalizedInput.includes("no2") || normalizedInput.includes("nitrogen dioxide")) {
       if (airQualityData?.pollutants?.no2 !== undefined) {
         return `The current Nitrogen Dioxide (NO₂) level for ${airQualityData.cityName || "this location"} is ${airQualityData.pollutants.no2.toFixed(1)} μg/m³. NO₂ comes primarily from burning fuel in vehicles and power plants. It can irritate the respiratory system and contribute to the formation of particulate matter and ozone.`;
@@ -333,7 +329,6 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose, airQualityData }) => {
       }
     }
     
-    // Handle other pollutants if data is available
     if (normalizedInput.includes("so2") || normalizedInput.includes("sulfur dioxide")) {
       if (airQualityData?.pollutants?.so2 !== undefined) {
         return `The current Sulfur Dioxide (SO₂) level for ${airQualityData.cityName || "this location"} is ${airQualityData.pollutants.so2.toFixed(1)} μg/m³. SO₂ comes primarily from burning fossil fuels containing sulfur. It can harm the respiratory system and contribute to acid rain.`;
@@ -353,11 +348,11 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose, airQualityData }) => {
     return null; // No specific pollutant question detected
   };
 
-  // Improved function to handle chart-related questions
+  // Function to handle chart-related questions
   const handleChartQuestion = (userInput: string): string | null => {
     const normalizedInput = userInput.toLowerCase();
     
-    // Direct match for "How do I read the charts?"
+    // Direct match for chart-related questions
     if (normalizedInput.includes("how") && 
         (normalizedInput.includes("read") || normalizedInput.includes("interpret")) && 
         normalizedInput.includes("chart")) {
@@ -365,7 +360,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose, airQualityData }) => {
       return "The charts in ClearCity display pollutant concentrations (y-axis) over time (x-axis). Each colored line represents a different pollutant: purple for PM2.5, green for PM10, yellow for Ozone (O₃), and orange for Nitrogen Dioxide (NO₂). Higher values indicate higher pollution levels. You can hover over any point on the chart to see exact measurements for that time. The historical chart (left) shows the past 24 hours, while the forecast chart (right) shows predicted future values.";
     }
     
-    // More flexible pattern matching
+    // More flexible pattern matching for chart questions
     if ((normalizedInput.includes("chart") || normalizedInput.includes("graph") || 
          normalizedInput.includes("plot")) && 
         (normalizedInput.includes("read") || normalizedInput.includes("understand") || 
@@ -410,351 +405,13 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose, airQualityData }) => {
     return null; // No chart question detected
   };
 
-  // Improved function to handle app-related questions
+  // Function to handle app-related questions
   const handleAppQuestion = (userInput: string): string | null => {
     const normalizedInput = userInput.toLowerCase();
     
-    // Direct match for "How does the ClearCity app work?"
+    // Direct match for app functionality questions
     if ((normalizedInput.includes("how") && 
          normalizedInput.includes("work") && 
          (normalizedInput.includes("clearcity") || normalizedInput.includes("clear city") || normalizedInput.includes("app")))) {
       
-      return "ClearCity works by connecting to the OpenWeatherMap API to fetch real-time air quality data. When you search for a city or click on the map, the app retrieves current air quality readings, historical data for the past 24 hours, and forecasts for that location. The data is displayed through an intuitive interface with color-coded AQI indicators and detailed pollutant information. You can also use the charts to visualize air quality trends and access this chatbot for additional information and guidance.";
-    }
-    
-    // Questions about how to use the app
-    if ((normalizedInput.includes("how") && 
-         normalizedInput.includes("use") && 
-         (normalizedInput.includes("clearcity") || normalizedInput.includes("clear city") || normalizedInput.includes("app")))) {
-      
-      return "To use ClearCity, you first need to enter your OpenWeatherMap API key. Then you can search for cities or click on the map to view air quality data for specific locations. The dashboard displays current air quality, historical data for the past 24 hours, and forecast data. The color-coded AQI indicator shows the overall air quality level, while detailed pollutant information helps you understand specific components. You can also use this chatbot to ask questions about air quality or how to interpret the data.";
-    }
-    
-    // Questions about app features
-    if (containsKeywords(normalizedInput, projectKeywords.clearcity) && 
-        containsKeywords(normalizedInput, projectKeywords.features)) {
-      
-      return "ClearCity features include: 1) Real-time air quality data for locations worldwide, 2) Interactive map for exploring air quality in different areas, 3) City search functionality, 4) Detailed information about individual pollutants (PM2.5, PM10, O3, NO2, SO2, CO), 5) Historical air quality charts for the past 24 hours, 6) Air quality forecasts, 7) Color-coded AQI indicators for quick understanding of pollution levels, and 8) This interactive chatbot to answer your questions about air quality.";
-    }
-
-    // Questions specifically about the project
-    if (normalizedInput.includes("what") && 
-        (normalizedInput.includes("this project") || normalizedInput.includes("this app") || 
-         normalizedInput.includes("clearcity") || normalizedInput.includes("clear city"))) {
-      
-      return "ClearCity is a real-time urban pollution tracking application that helps users monitor and understand air quality in cities worldwide. It provides current air quality indices, detailed pollutant information, historical trends, and forecasts to help people make informed decisions about their outdoor activities and health. The application uses data from the OpenWeatherMap API and presents it in an easy-to-understand interface with interactive maps and charts.";
-    }
-
-    // Questions about the purpose of the application
-    if (normalizedInput.includes("why") && 
-        (normalizedInput.includes("use") || normalizedInput.includes("important") || 
-         normalizedInput.includes("need") || normalizedInput.includes("purpose")) && 
-        (normalizedInput.includes("app") || normalizedInput.includes("clearcity") || 
-         normalizedInput.includes("clear city") || normalizedInput.includes("this"))) {
-      
-      return "ClearCity serves an important purpose in today's world where air pollution has become a significant health concern. By providing real-time air quality data, the application helps users: 1) Make informed decisions about outdoor activities, 2) Understand pollution patterns in their area, 3) Take precautions when air quality is poor, 4) Track improvements or deteriorations in air quality over time, and 5) Raise awareness about the importance of clean air and environmental protection. This information is especially valuable for people with respiratory conditions, parents of young children, elderly individuals, and anyone concerned about their health.";
-    }
-    
-    return null; // No app question detected
-  };
-
-  // Function to handle city comparison questions
-  const handleCityComparisonQuestion = (userInput: string): string | null => {
-    const normalizedInput = userInput.toLowerCase();
-    
-    // Handle "most polluted" questions
-    if ((normalizedInput.includes("most") || normalizedInput.includes("worst")) && 
-        (normalizedInput.includes("polluted") || normalizedInput.includes("pollution") || normalizedInput.includes("aqi") || normalizedInput.includes("air quality"))) {
-        
-      // If asking about cities
-      if (normalizedInput.includes("city") || normalizedInput.includes("cities") || normalizedInput.includes("urban")) {
-        return "Based on recent global air quality data, some of the most polluted cities in the world include Delhi (India), Lahore (Pakistan), Dhaka (Bangladesh), Kolkata (India), and Beijing (China). These cities often experience extremely high levels of PM2.5 and other pollutants, with AQI readings frequently reaching the 'Very Unhealthy' or 'Hazardous' range. Industrial emissions, vehicle exhaust, construction dust, and geographical factors that trap pollution contribute to these poor conditions.";
-      }
-      
-      // If asking about countries
-      if (normalizedInput.includes("country") || normalizedInput.includes("countries") || normalizedInput.includes("nation")) {
-        return "According to recent global air quality data, the countries with the worst air pollution problems include Bangladesh, Pakistan, India, Mongolia, and Afghanistan. These nations face challenges from rapid industrialization without sufficient environmental controls, high population density, widespread use of solid fuels for cooking and heating, vehicle emissions, and in some cases, geographical factors that trap pollution.";
-      }
-    }
-    
-    // Handle "cleanest air" questions
-    if ((normalizedInput.includes("cleanest") || normalizedInput.includes("best")) && 
-        (normalizedInput.includes("air") || normalizedInput.includes("aqi") || normalizedInput.includes("quality"))) {
-        
-      // If asking about cities
-      if (normalizedInput.includes("city") || normalizedInput.includes("cities") || normalizedInput.includes("urban")) {
-        return "Cities with the cleanest air typically include Reykjavik (Iceland), Wellington (New Zealand), Zurich (Switzerland), Helsinki (Finland), and Honolulu (USA). These cities benefit from strict environmental regulations, favorable geographical conditions that disperse pollutants, lower population density, clean energy sources, and in some cases, beneficial ocean winds that help clear the air. They typically maintain AQI readings in the 'Good' range with very low PM2.5 levels.";
-      }
-      
-      // If asking about countries
-      if (normalizedInput.includes("country") || normalizedInput.includes("countries") || normalizedInput.includes("nation")) {
-        return "Countries with the cleanest air quality generally include Iceland, New Zealand, Australia, Estonia, Finland, and Sweden. These nations typically have a combination of favorable factors: lower population density, strict environmental regulations, high reliance on renewable energy, modern transportation systems, and geographical features that help disperse pollutants. Many maintain annual PM2.5 levels below the WHO guideline of 5 μg/m³.";
-      }
-    }
-    
-    // Handle "what is PM2.5" questions with location context
-    if (normalizedInput.includes("pm2.5") && 
-        (normalizedInput.includes("typical") || normalizedInput.includes("average") || normalizedInput.includes("normal") || normalizedInput.includes("levels"))) {
-      
-      // If asking about global or regional PM2.5
-      if (containsKeywords(normalizedInput, ["world", "global", "average", "typical"])) {
-        return "Globally, annual average PM2.5 levels vary widely by region. According to recent data, the global population-weighted annual mean concentration is around 40 μg/m³. However, there are significant regional variations: parts of South Asia average over 70 μg/m³, East Asia around 35 μg/m³, Western Europe around 10-15 μg/m³, and North America around 7-12 μg/m³. The WHO guideline for annual mean PM2.5 is 5 μg/m³, which is exceeded in most urban areas worldwide.";
-      }
-      
-      // If the user has selected a location, provide context
-      if (airQualityData?.pollutants?.pm2_5 !== undefined) {
-        const currentLevel = airQualityData.pollutants.pm2_5;
-        let evaluation = "";
-        
-        if (currentLevel <= 5) evaluation = "which is within the WHO guideline of 5 μg/m³ - this is excellent air quality";
-        else if (currentLevel <= 10) evaluation = "which is above the WHO guideline but still relatively good compared to global averages";
-        else if (currentLevel <= 25) evaluation = "which exceeds the WHO guideline and may cause some health concerns for sensitive individuals";
-        else if (currentLevel <= 50) evaluation = "which significantly exceeds health guidelines and may cause adverse health effects";
-        else evaluation = "which is at a very high level that poses significant health risks";
-        
-        return `The current PM2.5 level for ${airQualityData.cityName || "this location"} is ${currentLevel.toFixed(1)} μg/m³, ${evaluation}. Globally, the WHO recommends an annual mean of 5 μg/m³ or less for PM2.5. Urban areas worldwide frequently exceed this level, with global averages around 40 μg/m³ and much higher in heavily polluted regions.`;
-      }
-    }
-    
-    return null; // No comparison question detected
-  };
-
-  // Enhanced function to check if a query is non-project related
-  const isNonProjectQuery = (userInput: string): boolean => {
-    const normalizedInput = userInput.toLowerCase().trim();
-    
-    // List of non-project related topics or keywords
-    const nonProjectTopics = [
-      "weather forecast", "stock market", "sports", "politics", "movie", "music", "food", "recipe", 
-      "dating", "joke", "game", "story", "riddle", "homework", "name", "who made you", "ai", 
-      "chat gpt", "openai", "what do you think about", "favorite", "tell me about yourself", 
-      "meaning of life", "create", "design", "write", "code", "opinion", "how are you", 
-      "who are you", "birthday", "holiday", "weekend", "travel", "book", "movie", "love", "hate", 
-      "emotion", "feeling", "dream", "nightmare", "president", "election", "news", "war", "peace", 
-      "restaurant", "hotel", "flight", "car", "animal", "cryptocurrency", "bitcoin", "investment", 
-      "language", "translate", "google", "facebook", "twitter", "instagram", "tiktok", "youtube", 
-      "netflix", "amazon", "apple", "microsoft", "samsung", "iphone", "android", "windows", "mac", 
-      "linux", "programming", "javascript", "python", "java", "c++", "ruby", "go", "php", "html", 
-      "css", "database", "sql", "mongodb", "firebase", "aws", "azure", "gcp"
-    ];
-
-    // Check if any non-project topic is in the user input
-    if (nonProjectTopics.some(topic => normalizedInput.includes(topic))) {
-      return true;
-    }
-
-    // Check if any air quality or app-related keyword is in the input
-    const airQualityKeywords = [
-      ...projectKeywords.clearcity, ...projectKeywords.features, ...projectKeywords.airQuality,
-      ...projectKeywords.pollutants, ...projectKeywords.health, ...projectKeywords.map,
-      "aqi", "pollution", "clean air", "breath", "lung", "dashboard", "city", "search"
-    ];
-
-    // If the input is more than 3 words and doesn't contain any relevant keywords, consider it off-topic
-    if (normalizedInput.split(" ").length > 3 && !airQualityKeywords.some(keyword => normalizedInput.includes(keyword))) {
-      return true;
-    }
-    
-    return false;
-  };
-  
-  // Main function to handle user input and generate responses
-  const handleUserInput = (userText: string) => {
-    if (!userText.trim()) return;
-    
-    // Add user message to chat
-    const newUserMessage: Message = {
-      id: Date.now().toString(),
-      type: "user",
-      text: userText
-    };
-    
-    setMessages(prev => [...prev, newUserMessage]);
-    setInput("");
-    setShowSuggestions(false); // Hide suggestions after a user message
-    
-    // Process the user input and generate a response
-    setTimeout(() => {
-      let botResponse = "";
-      const normalizedInput = userText.toLowerCase();
-      
-      // Check if query is not related to the project or air quality
-      if (isNonProjectQuery(userText)) {
-        botResponse = "I'm sorry, but I can only answer questions related to air quality information and the ClearCity application. I'm unable to access information outside this scope. Could you please ask something about air pollution, air quality indices, pollutants, or how to use the ClearCity dashboard?";
-      }
-      // Try exact match first
-      else {
-        const exactMatch = findExactMatch(userText);
-        if (exactMatch) {
-          botResponse = exactMatch;
-        } 
-        // Check for pollutant questions
-        else {
-          const pollutantResponse = handlePollutantQuestion(userText);
-          if (pollutantResponse) {
-            botResponse = pollutantResponse;
-          }
-          // Check for chart-related questions
-          else if (containsKeywords(normalizedInput, projectKeywords.charts)) {
-            const chartResponse = handleChartQuestion(userText);
-            if (chartResponse) botResponse = chartResponse;
-          }
-          // Check for app-related questions
-          else if (containsKeywords(normalizedInput, projectKeywords.clearcity)) {
-            const appResponse = handleAppQuestion(userText);
-            if (appResponse) botResponse = appResponse;
-          }
-          // Check for city/country comparison questions
-          else if (containsKeywords(normalizedInput, projectKeywords.comparison) || 
-                  containsKeywords(normalizedInput, projectKeywords.cities)) {
-            const comparisonResponse = handleCityComparisonQuestion(userText);
-            if (comparisonResponse) botResponse = comparisonResponse;
-          }
-          // Handle current air quality questions
-          else if ((normalizedInput.includes("current") || normalizedInput.includes("now") || normalizedInput.includes("today")) && 
-                  containsKeywords(normalizedInput, projectKeywords.airQuality)) {
-            botResponse = getCurrentAirQualityInfo();
-          }
-          // Check for general health questions
-          else if (containsKeywords(normalizedInput, projectKeywords.health)) {
-            botResponse = "Air pollution can cause a range of health issues, from minor irritation to serious conditions. Short-term exposure can cause eye/nose/throat irritation, headaches, and worsened asthma symptoms. Long-term exposure is linked to reduced lung function, chronic respiratory diseases, heart disease, and even lung cancer. Children, elderly people, and those with pre-existing health conditions are particularly vulnerable. When air quality is poor (AQI 4-5), it's recommended to limit outdoor activities and use air purifiers indoors if available.";
-          }
-          // Improved keyword-based matching as fallback
-          else {
-            // Search FAQ for relevant answers based on keyword matching
-            let bestMatch = null;
-            let highestMatchScore = 0;
-            
-            for (const faq of faqData) {
-              // Create a simple matching score based on word overlap
-              const questionWords = faq.question.toLowerCase().split(/\s+/);
-              const inputWords = normalizedInput.split(/\s+/);
-              
-              let matchCount = 0;
-              for (const word of inputWords) {
-                if (word.length > 2 && questionWords.includes(word)) {
-                  matchCount++;
-                }
-              }
-              
-              const matchScore = matchCount / inputWords.length;
-              if (matchScore > highestMatchScore && matchScore > 0.3) { // Threshold for relevance
-                highestMatchScore = matchScore;
-                bestMatch = faq;
-              }
-            }
-            
-            if (bestMatch) {
-              botResponse = bestMatch.answer;
-            } else {
-              // If no good match found, generate a contextual fallback response
-              botResponse = "I don't have specific information on that question, but I'm happy to help with air quality information. You can ask about AQI levels, specific pollutants like PM2.5 or ozone, health effects of air pollution, or how to use ClearCity features like the map or charts. Is there something specific about air quality you'd like to know?";
-            }
-          }
-        }
-      }
-      
-      // Add the bot response to messages
-      const newBotMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        type: "bot",
-        text: botResponse
-      };
-      
-      setMessages(prev => [...prev, newBotMessage]);
-    }, 600); // Small delay to simulate processing time
-  };
-
-  const handleSuggestionClick = (suggestion: string) => {
-    handleUserInput(suggestion);
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    handleUserInput(input);
-  };
-
-  return (
-    <Card className="fixed right-6 bottom-20 w-80 md:w-96 h-[500px] shadow-xl border border-border z-[200] flex flex-col" data-component="chatbot">
-      <div className="bg-primary text-white p-3 flex justify-between items-center rounded-t-lg">
-        <h3 className="font-medium">ClearCity Assistant</h3>
-        <button 
-          onClick={onClose} 
-          className="text-white hover:text-gray-200"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-        </button>
-      </div>
-      
-      <ScrollArea className="flex-1 p-3">
-        <div className="space-y-4">
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`${
-                message.type === "user"
-                  ? "bg-muted ml-auto text-foreground"
-                  : "bg-primary/10 mr-auto"
-              } rounded-lg p-3 max-w-[85%] break-words`}
-            >
-              {message.text.split('\n').map((text, i) => (
-                <p key={i} className={i > 0 ? "mt-2" : ""}>
-                  {text}
-                </p>
-              ))}
-            </div>
-          ))}
-          
-          {/* Suggested prompts section */}
-          {showSuggestions && messages.length === 1 && (
-            <div className="mt-4 space-y-2">
-              <p className="text-sm text-muted-foreground">Try asking:</p>
-              <div className="flex flex-wrap gap-2">
-                {suggestedPrompts.map((prompt, index) => (
-                  <button
-                    key={index}
-                    onClick={() => handleSuggestionClick(prompt)}
-                    className="bg-primary/5 hover:bg-primary/10 text-sm py-1 px-3 rounded-full text-primary transition-colors"
-                  >
-                    {prompt}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-          
-          <div ref={messagesEndRef} />
-        </div>
-      </ScrollArea>
-      
-      <form onSubmit={handleSubmit} className="p-3 border-t border-border">
-        <div className="flex gap-2">
-          <Input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask about air quality..."
-            className="flex-1"
-          />
-          <Button type="submit" size="sm">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="m22 2-7 20-4-9-9-4Z" />
-              <path d="M22 2 11 13" />
-            </svg>
-          </Button>
-        </div>
-      </form>
-    </Card>
-  );
-};
-
-export default Chatbot;
+      return "ClearCity works by connecting to the OpenWeatherMap API to fetch real-time air quality data. When you search
