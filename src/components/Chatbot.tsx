@@ -80,6 +80,42 @@ const faqData = [
   {
     question: "How do I interpret the AQI values?",
     answer: "In ClearCity, AQI values range from 1-5. AQI 1 means Good air quality with minimal health concern. AQI 2 is Fair with minor concerns for sensitive individuals. AQI 3 is Moderate with possible effects for sensitive groups. AQI 4 is Poor with health effects for everyone. AQI 5 is Very Poor/Hazardous with serious health risks for all."
+  },
+  {
+    question: "What do the charts show?",
+    answer: "The charts in ClearCity visualize air quality data over time. The historical chart shows the past 24 hours of air quality measurements, while the forecast chart shows predicted air quality for upcoming hours. Both charts track pollutants like PM2.5, PM10, Ozone (O₃), and Nitrogen Dioxide (NO₂)."
+  },
+  {
+    question: "How do I read the line charts?",
+    answer: "The line charts display pollutant concentrations (y-axis) over time (x-axis). Each colored line represents a different pollutant: PM2.5, PM10, O₃, and NO₂. Higher values indicate higher pollution levels. You can hover over any point on the chart to see exact measurements for that time."
+  },
+  {
+    question: "What is PM2.5?",
+    answer: "PM2.5 refers to fine particulate matter with a diameter of 2.5 micrometers or smaller. These particles are primarily from combustion sources like vehicle exhaust, power plants, and wildfires. They can penetrate deep into the lungs and bloodstream, causing respiratory and cardiovascular issues. The WHO guideline for PM2.5 is an annual mean of 5 μg/m³."
+  },
+  {
+    question: "What is PM10?",
+    answer: "PM10 refers to particulate matter with a diameter of 10 micrometers or smaller. These particles include dust, pollen, and mold. While larger than PM2.5, they can still cause health problems, particularly respiratory issues like coughing, asthma attacks, and decreased lung function. The WHO guideline for PM10 is an annual mean of 15 μg/m³."
+  },
+  {
+    question: "What is ozone (O₃)?",
+    answer: "Ground-level ozone (O₃) is a secondary pollutant formed when nitrogen oxides and volatile organic compounds react in sunlight. It's a major component of smog and typically peaks during hot, sunny days. Ozone can irritate the respiratory system, reduce lung function, aggravate asthma, and cause inflammation of lung tissue. The WHO guideline for ozone is a peak 8-hour mean of 100 μg/m³."
+  },
+  {
+    question: "What is nitrogen dioxide (NO₂)?",
+    answer: "Nitrogen dioxide (NO₂) is a gaseous air pollutant primarily from vehicle exhaust and power plants. It has a reddish-brown color and a sharp, harsh odor. NO₂ can irritate airways, worsen respiratory diseases like asthma, contribute to the formation of fine particles and ozone, and increase susceptibility to respiratory infections. The WHO guideline for NO₂ is an annual mean of 10 μg/m³."
+  },
+  {
+    question: "What is sulfur dioxide (SO₂)?",
+    answer: "Sulfur dioxide (SO₂) is a gaseous air pollutant primarily from burning fossil fuels containing sulfur, especially in power plants and industrial processes. It has a sharp, pungent odor and can irritate the respiratory system, worsen asthma and chronic bronchitis, and form acid rain. The WHO guideline for SO₂ is a 24-hour mean of 40 μg/m³."
+  },
+  {
+    question: "What is carbon monoxide (CO)?",
+    answer: "Carbon monoxide (CO) is a colorless, odorless gas produced by incomplete combustion of carbon-containing fuels. Sources include vehicle exhaust, gas stoves, and furnaces. CO is dangerous because it binds to hemoglobin in blood more readily than oxygen, reducing oxygen delivery to tissues and organs. High levels can cause headaches, dizziness, confusion, and even death. The WHO guideline for CO is an 8-hour mean of 10 mg/m³."
+  },
+  {
+    question: "What is ammonia (NH₃)?",
+    answer: "Ammonia (NH₃) is a colorless gas with a pungent odor. In air pollution contexts, it primarily comes from agricultural activities, especially livestock farming and fertilizer application. Ammonia contributes to the formation of secondary particulate matter and can irritate the respiratory system at high concentrations. It also contributes to environmental issues like eutrophication when deposited into water bodies."
   }
 ];
 
@@ -91,7 +127,9 @@ const projectKeywords = {
   airQuality: ["air quality", "aqi", "pollution", "pollutant", "pm2.5", "pm10", "ozone", "o3", "no2", "co", "so2"],
   data: ["data", "information", "stats", "statistics", "metrics", "measurements", "readings", "levels"],
   map: ["map", "visualization", "visual", "view", "display", "show", "locate", "location", "city", "cities", "area", "region"],
-  time: ["time", "history", "historical", "past", "previous", "forecast", "future", "prediction", "trend", "trends", "24 hours"]
+  time: ["time", "history", "historical", "past", "previous", "forecast", "future", "prediction", "trend", "trends", "24 hours"],
+  charts: ["chart", "graph", "plot", "line", "visualization", "trend", "patterns", "axis", "legend"],
+  pollutants: ["pm2.5", "pm10", "o3", "ozone", "no2", "nitrogen dioxide", "so2", "sulfur dioxide", "co", "carbon monoxide", "nh3", "ammonia", "particulate", "matter", "gas", "particle"]
 };
 
 const Chatbot: React.FC<ChatbotProps> = ({ onClose, airQualityData }) => {
@@ -159,9 +197,122 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose, airQualityData }) => {
     return response;
   };
 
-  // Improved response generation with better context understanding
+  // Function to handle specific pollutant questions
+  const handlePollutantQuestion = (userInput: string): string | null => {
+    const normalizedInput = userInput.toLowerCase();
+    
+    // Handle PM2.5 questions
+    if (normalizedInput.includes("pm2.5") || normalizedInput.includes("pm 2.5")) {
+      if (airQualityData?.pollutants?.pm2_5 !== undefined) {
+        return `The current PM2.5 level for ${airQualityData.cityName || "this location"} is ${airQualityData.pollutants.pm2_5.toFixed(1)} μg/m³. PM2.5 refers to fine particulate matter smaller than 2.5 micrometers that can penetrate deep into the lungs and bloodstream. The World Health Organization recommends levels below 5 μg/m³ for annual exposure.`;
+      } else {
+        return "PM2.5 refers to fine particulate matter with a diameter of 2.5 micrometers or smaller. These particles are harmful as they can penetrate deep into your lungs and even enter your bloodstream. Select a location on the map or search for a city to see PM2.5 levels.";
+      }
+    }
+    
+    // Handle PM10 questions
+    if (normalizedInput.includes("pm10") || normalizedInput.includes("pm 10")) {
+      if (airQualityData?.pollutants?.pm10 !== undefined) {
+        return `The current PM10 level for ${airQualityData.cityName || "this location"} is ${airQualityData.pollutants.pm10.toFixed(1)} μg/m³. PM10 refers to coarse particulate matter smaller than 10 micrometers that can enter the respiratory system. The World Health Organization recommends levels below 15 μg/m³ for annual exposure.`;
+      } else {
+        return "PM10 refers to particulate matter with a diameter of 10 micrometers or smaller. These particles can enter your respiratory system and cause health issues. Select a location on the map or search for a city to see PM10 levels.";
+      }
+    }
+    
+    // Handle Ozone (O3) questions
+    if (normalizedInput.includes("o3") || normalizedInput.includes("ozone")) {
+      if (airQualityData?.pollutants?.o3 !== undefined) {
+        return `The current Ozone (O₃) level for ${airQualityData.cityName || "this location"} is ${airQualityData.pollutants.o3.toFixed(1)} μg/m³. Ground-level ozone is a harmful air pollutant formed when pollutants from cars, power plants, and other sources react in the presence of sunlight. It can irritate the respiratory system and worsen conditions like asthma.`;
+      } else {
+        return "Ozone (O₃) at ground level is a harmful air pollutant and a key component of smog. It's formed when pollutants emitted by cars, power plants, and other sources chemically react in the presence of sunlight. Select a location on the map or search for a city to see Ozone levels.";
+      }
+    }
+    
+    // Handle Nitrogen Dioxide (NO2) questions
+    if (normalizedInput.includes("no2") || normalizedInput.includes("nitrogen dioxide")) {
+      if (airQualityData?.pollutants?.no2 !== undefined) {
+        return `The current Nitrogen Dioxide (NO₂) level for ${airQualityData.cityName || "this location"} is ${airQualityData.pollutants.no2.toFixed(1)} μg/m³. NO₂ comes primarily from burning fuel in vehicles and power plants. It can irritate the respiratory system and contribute to the formation of particulate matter and ozone.`;
+      } else {
+        return "Nitrogen Dioxide (NO₂) is a gaseous air pollutant that primarily comes from burning fuel in vehicles, power plants, and industrial processes. It can irritate airways and worsen respiratory diseases. Select a location on the map or search for a city to see NO₂ levels.";
+      }
+    }
+    
+    // Handle other pollutants if data is available
+    if (normalizedInput.includes("so2") || normalizedInput.includes("sulfur dioxide")) {
+      if (airQualityData?.pollutants?.so2 !== undefined) {
+        return `The current Sulfur Dioxide (SO₂) level for ${airQualityData.cityName || "this location"} is ${airQualityData.pollutants.so2.toFixed(1)} μg/m³. SO₂ comes primarily from burning fossil fuels containing sulfur. It can harm the respiratory system and contribute to acid rain.`;
+      }
+    }
+    
+    if (normalizedInput.includes("co") || normalizedInput.includes("carbon monoxide")) {
+      if (airQualityData?.pollutants?.co !== undefined) {
+        return `The current Carbon Monoxide (CO) level for ${airQualityData.cityName || "this location"} is ${airQualityData.pollutants.co.toFixed(1)} μg/m³. CO is a colorless, odorless gas that comes from incomplete combustion. It reduces oxygen delivery in the body and can be harmful at high concentrations.`;
+      }
+    }
+    
+    return null; // No specific pollutant question detected
+  };
+
+  // Function to handle chart-related questions
+  const handleChartQuestion = (userInput: string): string | null => {
+    const normalizedInput = userInput.toLowerCase();
+    
+    if (containsKeywords(normalizedInput, ["what", "show", "explain", "about"]) && 
+        containsKeywords(normalizedInput, projectKeywords.charts)) {
+      
+      // Questions about the historical chart
+      if (normalizedInput.includes("historical") || 
+          normalizedInput.includes("history") || 
+          normalizedInput.includes("past") || 
+          normalizedInput.includes("24 hour")) {
+        
+        if (airQualityData?.hasHistoricalData) {
+          return `The historical chart shows air quality data for ${airQualityData.cityName || "the selected location"} over the past 24 hours. Each colored line represents a different pollutant: purple for PM2.5, green for PM10, yellow for Ozone (O₃), and orange for Nitrogen Dioxide (NO₂). The x-axis shows time, and the y-axis shows concentration in μg/m³. Higher values indicate worse air quality. You can hover over any point on the chart to see exact measurements.`;
+        } else {
+          return "The historical chart displays air quality data from the past 24 hours. It tracks multiple pollutants (PM2.5, PM10, Ozone, and NO₂) over time, allowing you to see how air quality has changed throughout the day. The chart appears when you select a location on the map or search for a city.";
+        }
+      }
+      
+      // Questions about the forecast chart
+      if (normalizedInput.includes("forecast") || 
+          normalizedInput.includes("future") || 
+          normalizedInput.includes("predict") || 
+          normalizedInput.includes("upcoming")) {
+        
+        if (airQualityData?.hasForecastData) {
+          return `The forecast chart shows predicted air quality data for ${airQualityData.cityName || "the selected location"} in the upcoming hours. Like the historical chart, each colored line represents a different pollutant: purple for PM2.5, green for PM10, yellow for Ozone (O₃), and orange for Nitrogen Dioxide (NO₂). This can help you plan outdoor activities based on expected air quality.`;
+        } else {
+          return "The forecast chart shows predicted air quality for the next several hours. It uses the same color-coding as the historical chart (purple for PM2.5, green for PM10, yellow for Ozone, and orange for NO₂) and can help you plan activities based on expected air quality. The forecast chart appears when you select a location on the map or search for a city.";
+        }
+      }
+      
+      // General questions about chart reading
+      if (normalizedInput.includes("read") || 
+          normalizedInput.includes("understand") || 
+          normalizedInput.includes("interpret") ||
+          normalizedInput.includes("how to")) {
+        
+        return "The charts in ClearCity display pollutant concentrations (y-axis) over time (x-axis). Each colored line tracks a different pollutant: purple for PM2.5, green for PM10, yellow for Ozone (O₃), and orange for Nitrogen Dioxide (NO₂). Higher values indicate higher pollution levels. You can hover over any point to see the exact measurement for that time. The historical chart (left) shows the past 24 hours, while the forecast chart (right) shows predicted future values.";
+      }
+      
+      // General chart information
+      return "ClearCity displays two main charts: a historical chart showing air quality data for the past 24 hours, and a forecast chart showing predicted air quality for upcoming hours. Both charts track multiple pollutants (PM2.5, PM10, Ozone, and NO₂) using different colored lines. These visualizations help you understand air quality patterns over time and make informed decisions about outdoor activities.";
+    }
+    
+    return null; // No chart question detected
+  };
+
+  // Enhanced response generation with better context understanding for charts and API data
   const generateResponse = (userInput: string): string => {
     const normalizedInput = userInput.toLowerCase();
+    
+    // Check for specific pollutant questions first
+    const pollutantResponse = handlePollutantQuestion(userInput);
+    if (pollutantResponse) return pollutantResponse;
+    
+    // Check for chart-related questions
+    const chartResponse = handleChartQuestion(userInput);
+    if (chartResponse) return chartResponse;
     
     // Check for current air quality data request
     if (normalizedInput.includes("current") && 
@@ -169,6 +320,30 @@ const Chatbot: React.FC<ChatbotProps> = ({ onClose, airQualityData }) => {
          normalizedInput.includes("aqi") || 
          normalizedInput.includes("pollution"))) {
       return getCurrentAirQualityInfo();
+    }
+    
+    // Check for specific location air quality questions
+    if (containsKeywords(normalizedInput, ["what is", "how is", "tell me"]) &&
+        containsKeywords(normalizedInput, ["air quality", "aqi", "pollution"]) &&
+        !normalizedInput.includes("what is aqi")) {
+      
+      // Check if they're asking about the currently selected location
+      if (airQualityData && airQualityData.currentAqi !== undefined) {
+        return getCurrentAirQualityInfo();
+      } else {
+        return "To check air quality for a specific location, you can either search for a city using the search bar at the top of the application or click directly on the map. Once you select a location, I can provide you with detailed air quality information for that area.";
+      }
+    }
+    
+    // Check for a question about trend analysis
+    if (containsKeywords(normalizedInput, ["trend", "pattern", "change", "changing", "improving", "worsening"]) &&
+        containsKeywords(normalizedInput, ["air quality", "pollution", "aqi"])) {
+      
+      if (airQualityData?.hasHistoricalData) {
+        return `You can analyze air quality trends for ${airQualityData.cityName || "this location"} by looking at the historical chart below the map. This chart shows how different pollutants (PM2.5, PM10, O₃, and NO₂) have changed over the past 24 hours. Look for patterns like daily peaks and valleys, which often correspond to traffic patterns and temperature changes throughout the day.`;
+      } else {
+        return "To analyze air quality trends, select a location on the map or search for a city. The historical chart will show you how different pollutants have changed over the past 24 hours. Look for patterns like higher pollution during rush hours or changes related to weather conditions. The forecast chart can also help you anticipate upcoming changes in air quality.";
+      }
     }
     
     // Check for irrelevant questions or non-project content
