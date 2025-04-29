@@ -68,6 +68,12 @@ const Dashboard = () => {
         );
         
         if (data && data.list && data.list.length > 0) {
+          // Make sure the air quality item has the coordinates
+          data.list[0].coord = {
+            lat: selectedCity.coord.lat,
+            lon: selectedCity.coord.lon
+          };
+          
           setSelectedAirQuality(data.list[0]);
           setSelectedLocationName(selectedCity.name);
         }
@@ -92,7 +98,7 @@ const Dashboard = () => {
     setSelectedLocationName(locationName);
     
     // Clear selected city when clicking on map at a different location
-    if (airQuality) {
+    if (airQuality && airQuality.coord) {
       // Only clear if the coordinates don't match the selected city
       if (selectedCity && 
           (Math.abs(airQuality.coord.lat - selectedCity.coord.lat) > 0.01 ||

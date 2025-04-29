@@ -67,6 +67,8 @@ const MapClickHandler = ({ onAirQualityUpdate }: { onAirQualityUpdate?: Props['o
         
         const data = await getCurrentAirQuality(lat, lng, apiKey);
         if (data && data.list && data.list.length > 0) {
+          // Add coordinates to the air quality item from the parent data
+          data.list[0].coord = { lat, lon: lng };
           onAirQualityUpdate && onAirQualityUpdate(data.list[0], locationName);
         }
       } catch (error) {

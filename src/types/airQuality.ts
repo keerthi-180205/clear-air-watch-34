@@ -1,4 +1,3 @@
-
 export interface AirQualityData {
   coord: {
     lon: number;
@@ -22,6 +21,10 @@ export interface AirQualityItem {
     nh3: number; // Ammonia (μg/m3)
   };
   dt: number; // Data timestamp (Unix)
+  coord: {
+    lat: number;
+    lon: number;
+  };
 }
 
 export interface City {
